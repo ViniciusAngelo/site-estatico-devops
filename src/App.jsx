@@ -20,6 +20,8 @@ import {
 } from 'lucide-react'
 import logo from './assets/logo.jpeg'
 import './App.css'
+import { HardDriveDownload } from 'lucide-react'
+import { Computer } from 'lucide-react'
 
 function App() {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -63,15 +65,15 @@ function App() {
       description: "Sites e aplicações web responsivas com as mais modernas tecnologias do mercado."
     },
     {
-      icon: <Smartphone className="w-8 h-8" />,
-      title: "Aplicações Mobile",
-      description: "Desenvolvimento de apps nativos e híbridos para iOS e Android."
+      icon: <Computer className="w-8 h-8" />,
+      title: "Hardware",
+      description: "Instalação de equipamentos, suporte e manutenção de hardwares"
     }
   ]
 
   const technologies = [
-    "JavaScript", "React", "Node.js", "Python", "Java", "AWS", 
-    "Docker", "PostgreSQL", "MongoDB", "Git", "Linux", "TypeScript"
+    "JavaScript", "React", "Node.js", "Python", "Java", "Azure", 
+    "Docker", "Windows", "MongoDB", "Git", "Linux", "Redes"
   ]
 
   return (
@@ -125,7 +127,7 @@ function App() {
               alt="Vinicius Angelo Logo" 
               className="w-24 h-24 mx-auto mb-8 rounded-2xl shadow-lg"
             />
-            <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+            <h1 className="text-5x1 md:text-7xl font-bold mb-6 bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text">
               Vinicius Angelo
             </h1>
             <h2 className="text-2xl md:text-3xl text-muted-foreground mb-8">
@@ -271,21 +273,21 @@ function App() {
                     <Mail className="w-6 h-6 text-primary" />
                     <div>
                       <p className="font-medium">Email</p>
-                      <p className="text-muted-foreground">contato@viniciusangelo.com</p>
+                      <p className="text-muted-foreground">viniciusenterprise03@gmail.com</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-4">
                     <Phone className="w-6 h-6 text-primary" />
                     <div>
                       <p className="font-medium">Telefone</p>
-                      <p className="text-muted-foreground">+55 (11) 99999-9999</p>
+                      <p className="text-muted-foreground">+55 (15) 99799-3440</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-4">
                     <MapPin className="w-6 h-6 text-primary" />
                     <div>
                       <p className="font-medium">Localização</p>
-                      <p className="text-muted-foreground">São Paulo, Brasil</p>
+                      <p className="text-muted-foreground">Porto Feliz, Brasil</p>
                     </div>
                   </div>
                 </div>
@@ -296,35 +298,35 @@ function App() {
                     <h4 className="text-xl font-semibold mb-6">Redes Sociais</h4>
                     <div className="space-y-4">
                       <a 
-                        href="#" 
+                        href="https://www.instagram.com/vncs_ang.exe" 
                         className="flex items-center space-x-4 p-4 rounded-lg hover:bg-muted transition-colors group"
                       >
                         <Instagram className="w-6 h-6 text-primary group-hover:scale-110 transition-transform" />
                         <div>
                           <p className="font-medium">Instagram</p>
-                          <p className="text-sm text-muted-foreground">@viniciusangelo</p>
+                          <p className="text-sm text-muted-foreground">@vncs_ang.exe</p>
                         </div>
                       </a>
                       <a 
-                        href="#" 
+                        href="https://www.linkedin.com/in/vinicius-gonçalves-angelo-949b49215/" 
                         className="flex items-center space-x-4 p-4 rounded-lg hover:bg-muted transition-colors group"
                       >
                         <Linkedin className="w-6 h-6 text-primary group-hover:scale-110 transition-transform" />
                         <div>
                           <p className="font-medium">LinkedIn</p>
-                          <p className="text-sm text-muted-foreground">linkedin.com/in/viniciusangelo</p>
+                          <p className="text-sm text-muted-foreground">www.linkedin.com/in/vinicius-gonçalves-angelo-949b49215/</p>
                         </div>
                       </a>
                       <a 
-                        href="#" 
-                        className="flex items-center space-x-4 p-4 rounded-lg hover:bg-muted transition-colors group"
-                      >
-                        <Github className="w-6 h-6 text-primary group-hover:scale-110 transition-transform" />
-                        <div>
-                          <p className="font-medium">GitHub</p>
-                          <p className="text-sm text-muted-foreground">github.com/viniciusangelo</p>
-                        </div>
-                      </a>
+                         href="https://www.github.com/ViniciusAngelo" 
+                         className="flex items-center space-x-4 p-4 rounded-lg hover:bg-muted transition-colors group"
+                       >
+                         <Github className="w-6 h-6 text-primary group-hover:scale-110 transition-transform" />
+                         <div>
+                           <p className="font-medium">GitHub</p>
+                           <p className="text-sm text-muted-foreground">www.github.com/ViniciusAngelo</p>
+                         </div>
+                       </a>
                     </div>
                   </CardContent>
                 </Card>
