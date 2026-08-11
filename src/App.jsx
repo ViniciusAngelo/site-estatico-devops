@@ -19,17 +19,16 @@ import logo from './assets/logo.jpeg'
 import './App.css'
 
 // ============================================================
-// ANIMATION INTRO SUBAQUÁTICA (EXECUTA SÓ NO 1º ACESSO DA SESSÃO)
+// ANIMATION INTRO SUBAQUÁTICA (INUNDAÇÃO AMBIENTAL ORGANICA)
 // ============================================================
 function UnderwaterIntro({ onComplete }) {
   const [shouldRender, setShouldRender] = useState(true)
   const [isFadingOut, setIsFadingOut] = useState(false)
+  const [waterLevel, setWaterLevel] = useState(0) // 0% a 100%
 
   useEffect(() => {
-    // 1. Verificar preferência do usuário por movimento reduzido (Acessibilidade)
+    // 1. Acessibilidade & Checagem de Sessão
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    
-    // 2. Verificar se a intro já foi exibida nesta sessão
     const hasSeenIntro = sessionStorage.getItem('hasSeenUnderwaterIntro')
 
     if (prefersReducedMotion || hasSeenIntro) {
@@ -38,69 +37,73 @@ function UnderwaterIntro({ onComplete }) {
       return
     }
 
-    // 3. Salvar registro no sessionStorage para evitar re-execuções na navegação
     sessionStorage.setItem('hasSeenUnderwaterIntro', 'true')
 
-    // 4. Timer para iniciar o fade-out ao atingir o topo da tela
-    const fadeOutTimer = setTimeout(() => {
-      setIsFadingOut(true)
-    }, 2200)
+    // 2. Animação suave de subida do nível d'água (0% -> 100%)
+    let startTime = null
+    const duration = 2400 // 2.4 segundos de subida cinematográfica
 
-    // 5. Timer para remover completamente o componente do DOM após o término
-    const removeTimer = setTimeout(() => {
-      setShouldRender(false)
-      if (onComplete) onComplete()
-    }, 2700)
+    const animateWater = (timestamp) => {
+      if (!startTime) startTime = timestamp
+      const elapsed = timestamp - startTime
+      const progress = Math.min(elapsed / duration, 1)
+      
+      // Easing orgânico (Ease Out Cubic/Quart para aceleração e desaceleração de fluido)
+      const easeProgress = 1 - Math.pow(1 - progress, 3)
+      setWaterLevel(easeProgress * 100)
 
-    return () => {
-      clearTimeout(fadeOutTimer)
-      clearTimeout(removeTimer)
+      if (progress < 1) {
+        requestAnimationFrame(animateWater)
+      } else {
+        // Transição direta para o fundo definitivo
+        setTimeout(() => {
+          setIsFadingOut(true)
+        }, 200)
+
+        setTimeout(() => {
+          setShouldRender(false)
+          if (onComplete) onComplete()
+        }, 800)
+      }
     }
+
+    requestAnimationFrame(animateWater)
+
   }, [onComplete])
 
   if (!shouldRender) return null
 
-  return (
-    <div className={`underwater-intro-overlay ${isFadingOut ? 'fade-out' : ''}`}>
-      {/* SVG Filter para a refração fluida da borda da água */}
-      <svg className="intro-svg-filters" aria-hidden="true">
-        <defs>
-          <filter id="water-wave-distortion">
-            <feTurbulence
-              type="fractalNoise"
-              baseFrequency="0.015 0.03"
-              numOctaves="2"
-              result="noise"
-            >
-              <animate
-                attributeName="baseFrequency"
-                dur="4s"
-                values="0.015 0.03; 0.025 0.05; 0.015 0.03"
-                repeatCount="indefinite"
-              />
-            </feTurbulence>
-            <feDisplacementMap
-              in="SourceGraphic"
-              in2="noise"
-              scale="18"
-              xChannelSelector="R"
-              yChannelSelector="G"
-            />
-          </filter>
-        </defs>
-      </svg>
+  // Cálculo da altura d'água de baixo para cima
+  const topPercent = 100 - waterLevel
 
-      {/* Massa d'água subindo */}
-      <div className="water-rise-container">
-        <div className="water-mass">
-          <div className="water-surface-line" />
-          <div className="water-caustics-glow" />
-        </div>
+  return (
+    <div className={`environment-inundation-overlay ${isFadingOut ? 'merged' : ''}`}>
+      {/* 1. Camada de Ar / Escuridão (Tudo o que ainda NÃO foi inundado) */}
+      <div 
+        className="unflooded-dry-chamber"
+        style={{ height: `${topPercent}%` }}
+      />
+
+      {/* 2. Fronteira da Superfície da Água (Ondulação Luminosa e Refração) */}
+      <div 
+        className="water-surface-boundary"
+        style={{ top: `${topPercent}%` }}
+      >
+        <div className="surface-light-refraction" />
+      </div>
+
+      {/* 3. Atmosfera Submersa Inundando o Ambiente */}
+      <div 
+        className="flooded-environment-mass"
+        style={{
+          clipPath: `polygon(0 ${topPercent}%, 100% ${topPercent}%, 100% 100%, 0 100%)`
+        }}
+      >
+        <div className="submerged-ambient-glow" />
       </div>
     </div>
   )
 }
-
 // ============================================================
 // ATMOSFERA SUBAQUÁTICA ABISSAL (COM MARINE SNOW E CAUSTICS)
 // ============================================================
