@@ -19,6 +19,89 @@ import logo from './assets/logo.jpeg'
 import './App.css'
 
 // ============================================================
+// ANIMATION INTRO SUBAQUÁTICA (EXECUTA SÓ NO 1º ACESSO DA SESSÃO)
+// ============================================================
+function UnderwaterIntro({ onComplete }) {
+  const [shouldRender, setShouldRender] = useState(true)
+  const [isFadingOut, setIsFadingOut] = useState(false)
+
+  useEffect(() => {
+    // 1. Verificar preferência do usuário por movimento reduzido (Acessibilidade)
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    
+    // 2. Verificar se a intro já foi exibida nesta sessão
+    const hasSeenIntro = sessionStorage.getItem('hasSeenUnderwaterIntro')
+
+    if (prefersReducedMotion || hasSeenIntro) {
+      setShouldRender(false)
+      if (onComplete) onComplete()
+      return
+    }
+
+    // 3. Salvar registro no sessionStorage para evitar re-execuções na navegação
+    sessionStorage.setItem('hasSeenUnderwaterIntro', 'true')
+
+    // 4. Timer para iniciar o fade-out ao atingir o topo da tela
+    const fadeOutTimer = setTimeout(() => {
+      setIsFadingOut(true)
+    }, 2200)
+
+    // 5. Timer para remover completamente o componente do DOM após o término
+    const removeTimer = setTimeout(() => {
+      setShouldRender(false)
+      if (onComplete) onComplete()
+    }, 2700)
+
+    return () => {
+      clearTimeout(fadeOutTimer)
+      clearTimeout(removeTimer)
+    }
+  }, [onComplete])
+
+  if (!shouldRender) return null
+
+  return (
+    <div className={`underwater-intro-overlay ${isFadingOut ? 'fade-out' : ''}`}>
+      {/* SVG Filter para a refração fluida da borda da água */}
+      <svg className="intro-svg-filters" aria-hidden="true">
+        <defs>
+          <filter id="water-wave-distortion">
+            <feTurbulence
+              type="fractalNoise"
+              baseFrequency="0.015 0.03"
+              numOctaves="2"
+              result="noise"
+            >
+              <animate
+                attributeName="baseFrequency"
+                dur="4s"
+                values="0.015 0.03; 0.025 0.05; 0.015 0.03"
+                repeatCount="indefinite"
+              />
+            </feTurbulence>
+            <feDisplacementMap
+              in="SourceGraphic"
+              in2="noise"
+              scale="18"
+              xChannelSelector="R"
+              yChannelSelector="G"
+            />
+          </filter>
+        </defs>
+      </svg>
+
+      {/* Massa d'água subindo */}
+      <div className="water-rise-container">
+        <div className="water-mass">
+          <div className="water-surface-line" />
+          <div className="water-caustics-glow" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================
 // ATMOSFERA SUBAQUÁTICA ABISSAL (COM MARINE SNOW E CAUSTICS)
 // ============================================================
 function UnderwaterAtmosphere() {
@@ -282,6 +365,9 @@ function App() {
 
   return (
     <div className="ambient-light-container text-zinc-100 selection:bg-cyan-500/20">
+      {/* Animacao de Entrada (Inundacao Subaquatica no 1o Acesso) */}
+      <UnderwaterIntro />
+
       {/* Atmosfera Subaquática Escura de Fundo */}
       <UnderwaterAtmosphere />
 
