@@ -19,122 +19,46 @@ import logo from './assets/logo.jpeg'
 import './App.css'
 
 // ============================================================
-// EFEITO DE REFRAÇÃO LÍQUIDA SOMENTE NO BACKGROUND
+// COMPONENTE DE ILUMINAÇÃO SUAVE DO CURSOR (SPOTLIGHT)
 // ============================================================
-function LiquidBackground() {
-  const displacementMapRef = useRef(null)
-  const feTurbulenceRef = useRef(null)
-  const blobRef = useRef(null)
-
-  // Controle de posição e física do mouse (Lerp para movimento suave)
-  const pos = useRef({ x: -1000, y: -1000 })
-  const targetPos = useRef({ x: -1000, y: -1000 })
-  const velocity = useRef({ x: 0, y: 0 })
-  const opacity = useRef(0)
-  const targetOpacity = useRef(0)
-  const requestRef = useRef(null)
+function AmbientSpotlight() {
+  const spotlightRef = useRef(null)
 
   useEffect(() => {
-    // Desativa a interatividade em telas touch/mobile
-    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0
-    if (isTouchDevice) return
+    let mouseX = window.innerWidth / 2
+    let mouseY = window.innerHeight / 2
+    let currentX = mouseX
+    let currentY = mouseY
+    let animationFrameId
 
     const handleMouseMove = (e) => {
-      targetPos.current = { x: e.clientX, y: e.clientY }
-      targetOpacity.current = 1
-    }
-
-    const handleMouseLeave = () => {
-      targetOpacity.current = 0
+      mouseX = e.clientX
+      mouseY = e.clientY
     }
 
     window.addEventListener('mousemove', handleMouseMove)
-    document.addEventListener('mouseleave', handleMouseLeave)
 
-    let time = 0
+    // Movimento suave com interpolação (lerp) para ar sofisticado
+    const render = () => {
+      currentX += (mouseX - currentX) * 0.08
+      currentY += (mouseY - currentY) * 0.08
 
-    const animate = () => {
-      // Interpolação suave (Lerp) para inércia
-      const ease = 0.06
-      const dx = targetPos.current.x - pos.current.x
-      const dy = targetPos.current.y - pos.current.y
-
-      velocity.current.x = dx * ease
-      velocity.current.y = dy * ease
-
-      pos.current.x += velocity.current.x
-      pos.current.y += velocity.current.y
-
-      // Transição suave de opacidade
-      opacity.current += (targetOpacity.current - opacity.current) * 0.05
-
-      // Atualiza o blob luminoso de fundo
-      if (blobRef.current) {
-        blobRef.current.style.left = `${pos.current.x}px`
-        blobRef.current.style.top = `${pos.current.y}px`
-        blobRef.current.style.opacity = opacity.current.toFixed(2)
+      if (spotlightRef.current) {
+        spotlightRef.current.style.transform = `translate3d(${currentX}px, ${currentY}px, 0) translate(-50%, -50%)`
       }
 
-      // Calcula velocidade para escalar a distorção óptica do fundo
-      const speed = Math.sqrt(velocity.current.x ** 2 + velocity.current.y ** 2)
-      const scale = Math.min(Math.max(speed * 1.2, 10), 35) * opacity.current
-
-      if (displacementMapRef.current) {
-        displacementMapRef.current.setAttribute('scale', scale.toFixed(2))
-      }
-
-      // Ondulação orgânica e contínua da luz do líquido no fundo
-      if (feTurbulenceRef.current) {
-        time += 0.003
-        const freqX = (Math.sin(time) * 0.003 + 0.012).toFixed(4)
-        const freqY = (Math.cos(time * 0.8) * 0.003 + 0.012).toFixed(4)
-        feTurbulenceRef.current.setAttribute('baseFrequency', `${freqX} ${freqY}`)
-      }
-
-      requestRef.current = requestAnimationFrame(animate)
+      animationFrameId = requestAnimationFrame(render)
     }
 
-    requestRef.current = requestAnimationFrame(animate)
+    render()
 
     return () => {
       window.removeEventListener('mousemove', handleMouseMove)
-      document.removeEventListener('mouseleave', handleMouseLeave)
-      if (requestRef.current) cancelAnimationFrame(requestRef.current)
+      cancelAnimationFrame(animationFrameId)
     }
   }, [])
 
-  return (
-    <>
-      {/* Definições do filtro SVG exclusivo para o Fundo */}
-      <svg style={{ position: 'fixed', width: 0, height: 0, pointerEvents: 'none' }}>
-        <defs>
-          <filter id="liquid-bg-filter" x="-10%" y="-10%" width="120%" height="120%">
-            <feTurbulence
-              ref={feTurbulenceRef}
-              type="fractalNoise"
-              baseFrequency="0.012 0.012"
-              numOctaves="2"
-              result="noise"
-            />
-            <feDisplacementMap
-              ref={displacementMapRef}
-              in="SourceGraphic"
-              in2="noise"
-              scale="0"
-              xChannelSelector="R"
-              yChannelSelector="G"
-            />
-          </filter>
-        </defs>
-      </svg>
-
-      {/* Camada do Fundo com Distorções e Luz Fluida */}
-      <div className="liquid-bg-layer">
-        <div className="bg-mesh" />
-        <div ref={blobRef} className="liquid-cursor-blob" />
-      </div>
-    </>
-  )
+  return <div ref={spotlightRef} className="mouse-spotlight" />
 }
 
 function App() {
@@ -189,14 +113,14 @@ function App() {
   ]
 
   return (
-    <div className="liquid-bg-container text-zinc-100 selection:bg-white/20">
-      {/* Camada de Fundo Líquido (onde ocorre o efeito) */}
-      <LiquidBackground />
+    <div className="ambient-light-container text-zinc-100 selection:bg-white/20">
+      {/* Luz Suave de Fundo Seguindo o Mouse */}
+      <AmbientSpotlight />
 
-      {/* Camada de Conteúdo Nítida (zero distorção nos textos) */}
-      <div className="crisp-content-layer min-h-screen">
+      {/* Conteúdo Principal */}
+      <div className="content-layer min-h-screen">
         
-        {/* Navbar com Vidro Flutuante */}
+        {/* Navbar */}
         <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           isScrolled ? 'liquid-glass py-3' : 'bg-transparent py-6'
         }`}>
@@ -218,7 +142,7 @@ function App() {
         <section id="home" className="min-h-screen flex flex-col justify-center items-center relative pt-20 px-6">
           <div className="max-w-3xl mx-auto text-center flex flex-col items-center">
             
-            {/* Container do Logo em Vidro Líquido */}
+            {/* Logo */}
             <div className="p-3 liquid-glass rounded-3xl mb-8">
               <img
                 src={logo}

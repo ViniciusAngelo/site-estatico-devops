@@ -15,114 +15,83 @@ html, body {
 }
 
 /* ============================================================
-   CAMADA DE AURA / FUNDO LÍQUIDO (INTERATIVO)
+   ILUMINAÇÃO DE FUNDO DO MOUSE (SPOTLIGHT SOFISTICADO)
    ============================================================ */
 
-.liquid-bg-container {
+.ambient-light-container {
   position: relative;
   width: 100%;
   min-height: 100vh;
   background-color: #050507;
 }
 
-/* Camada que recebe o filtro de refração APENAS no fundo */
-.liquid-bg-layer {
+/* Camada da luz suave flutuante */
+.mouse-spotlight {
   position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  filter: url(#liquid-bg-filter);
-  opacity: 0.85;
-  will-change: transform, filter;
-}
-
-/* Formas luminosas no fundo para o efeito de água/refração interagir */
-.bg-mesh {
-  position: absolute;
-  inset: 0;
-  background-image: 
-    radial-gradient(circle at 15% 20%, rgba(99, 102, 241, 0.18) 0%, transparent 45%),
-    radial-gradient(circle at 85% 30%, rgba(168, 85, 247, 0.15) 0%, transparent 45%),
-    radial-gradient(circle at 50% 70%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 20% 80%, rgba(236, 72, 153, 0.1) 0%, transparent 40%);
-  background-attachment: fixed;
-}
-
-/* Ponto de luz líquida que segue o mouse suavemente no fundo */
-.liquid-cursor-blob {
-  position: absolute;
-  width: 450px;
-  height: 450px;
+  top: 0;
+  left: 0;
+  width: 650px;
+  height: 650px;
   border-radius: 50%;
+  pointer-events: none;
+  z-index: 1;
+  /* Gradiente suave e sofisticado: do azul/índigo para o transparente */
   background: radial-gradient(
-    circle,
-    rgba(99, 102, 241, 0.25) 0%,
-    rgba(168, 85, 247, 0.12) 40%,
-    rgba(0, 0, 0, 0) 70%
+    circle, 
+    rgba(99, 102, 241, 0.18) 0%, 
+    rgba(168, 85, 247, 0.08) 40%, 
+    rgba(59, 130, 246, 0.02) 65%, 
+    transparent 80%
   );
+  filter: blur(40px);
   transform: translate(-50%, -50%);
-  pointer-events: none;
-  transition: opacity 0.5s ease;
-}
-
-/* Ruído sutil no fundo para dar textura de vidro fosco */
-.liquid-bg-layer::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  opacity: 0.03;
-  pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  will-change: transform;
 }
 
 /* ============================================================
-   CONTEÚDO NÍTIDO (ACIMA DO FUNDO LÍQUIDO)
+   CONTEÚDO E CARDS LIQUID GLASS
    ============================================================ */
 
-.crisp-content-layer {
+.content-layer {
   position: relative;
-  z-index: 10; /* Garante que os textos e botões fiquem acima sem distorção */
+  z-index: 10;
 }
 
-/* ============================================================
-   EFEITO LIQUID GLASS (CARDS & BOTOES)
-   ============================================================ */
-
+/* Vidro fluido e translucidez refinada */
 .liquid-glass {
   position: relative;
-  background: rgba(20, 20, 25, 0.5) !important;
-  backdrop-filter: blur(20px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  background: rgba(18, 18, 24, 0.55) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
 
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
   box-shadow: 
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.15),
     inset 0 -1px 1px 0 rgba(0, 0, 0, 0.4),
-    0 15px 35px -10px rgba(0, 0, 0, 0.6),
-    0 4px 10px rgba(0, 0, 0, 0.3) !important;
+    0 20px 40px -15px rgba(0, 0, 0, 0.6) !important;
 
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
   overflow: hidden;
 }
 
+/* Efeito ao passar o mouse sobre os cards */
 .liquid-glass-hover:hover {
-  background: rgba(30, 30, 38, 0.65) !important;
-  border-color: rgba(255, 255, 255, 0.25) !important;
+  background: rgba(30, 30, 40, 0.7) !important;
+  border-color: rgba(255, 255, 255, 0.22) !important;
   box-shadow: 
-    inset 0 1px 2px 0 rgba(255, 255, 255, 0.4),
+    inset 0 1px 2px 0 rgba(255, 255, 255, 0.3),
     inset 0 -1px 2px 0 rgba(0, 0, 0, 0.5),
-    0 25px 50px -12px rgba(0, 0, 0, 0.8),
-    0 8px 20px rgba(0, 0, 0, 0.5) !important;
+    0 25px 50px -12px rgba(0, 0, 0, 0.8) !important;
   transform: translateY(-4px);
 }
 
 .icon-glass {
-  background: rgba(255, 255, 255, 0.04) !important;
-  backdrop-filter: blur(8px) !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  backdrop-filter: blur(10px) !important;
   border: 1px solid rgba(255, 255, 255, 0.15) !important;
   box-shadow: 
     inset 1px 1px 1px 0 rgba(255, 255, 255, 0.2),
-    inset -1px -1px 1px 0 rgba(0, 0, 0, 0.4) !important;
+    inset -1px -1px 1px 0 rgba(0, 0, 0, 0.3) !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -130,7 +99,7 @@ html, body {
 }
 
 .icon-glass:hover {
-  background: rgba(255, 255, 255, 0.08) !important;
+  background: rgba(255, 255, 255, 0.1) !important;
   border-color: rgba(255, 255, 255, 0.3) !important;
   transform: scale(1.05);
 }
