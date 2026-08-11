@@ -70,7 +70,7 @@ function UnderwaterAtmosphere() {
     window.addEventListener('mousemove', handleMouseMove)
 
     // Partículas Abissais (Marine Snow)
-    const particleCount = isMobile ? 12 : 35
+    const particleCount = isMobile ? 25 : 55
     const particles = Array.from({ length: particleCount }, () => ({
       x: Math.random() * width,
       y: Math.random() * height,
