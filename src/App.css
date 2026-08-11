@@ -192,3 +192,23 @@ html, body {
     opacity: 0.5; /* Reduz carga visual em telas menores */
   }
 }
+/* ============================================================
+   REFLEXO DA SUPERFÍCIE DA ÁGUA NO TOPO DA TELA
+   ============================================================ */
+
+   .ambient-light-container::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 120px;
+    background: linear-gradient(
+      180deg,
+      rgba(56, 189, 248, 0.06) 0%,
+      rgba(14, 165, 233, 0.02) 40%,
+      transparent 100%
+    );
+    pointer-events: none;
+    z-index: 3;
+  }

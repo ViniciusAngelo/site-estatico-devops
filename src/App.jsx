@@ -19,7 +19,7 @@ import logo from './assets/logo.jpeg'
 import './App.css'
 
 // ============================================================
-// ATMOSFERA SUBAQUÁTICA ABISSAL (CANVAS OTIMIZADO DE CAUSTICS E REFRACÃO)
+// ATMOSFERA SUBAQUÁTICA ABISSAL (COM MARINE SNOW E CAUSTICS)
 // ============================================================
 function UnderwaterAtmosphere() {
   const canvasRef = useRef(null)
@@ -36,7 +36,7 @@ function UnderwaterAtmosphere() {
 
     const isMobile = window.innerWidth <= 768
 
-    // Estado do mouse com física de desaceleração suave
+    // Estado do mouse com física de suavização
     const mouse = {
       x: width / 2,
       y: height / 2,
@@ -61,9 +61,7 @@ function UnderwaterAtmosphere() {
       const dy = e.clientY - mouse.lastY
       const dist = Math.sqrt(dx * dx + dy * dy)
       
-      // Medidor de velocidade do cursor para criar perturbação
       mouse.speed = Math.min(dist * 0.15, 8)
-
       mouse.lastX = e.clientX
       mouse.lastY = e.clientY
     }
@@ -71,57 +69,66 @@ function UnderwaterAtmosphere() {
     window.addEventListener('resize', handleResize)
     window.addEventListener('mousemove', handleMouseMove)
 
-    // Definição de focos orgânicos de luzes aquáticas (Caustics)
+    // Partículas Abissais (Marine Snow)
+    const particleCount = isMobile ? 12 : 35
+    const particles = Array.from({ length: particleCount }, () => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      radius: Math.random() * 1.8 + 0.5,
+      alpha: Math.random() * 0.35 + 0.1,
+      speedY: Math.random() * 0.2 + 0.05,
+      speedX: Math.random() * 0.1 - 0.05,
+      drift: Math.random() * Math.PI * 2,
+    }))
+
+    // Luzes de Caustics Subaquáticos
     const causticBlobs = [
-      { x: width * 0.2, y: height * 0.3, radius: 350, angle: 0, speed: 0.0008, color: 'rgba(14, 165, 233, 0.035)' },
-      { x: width * 0.8, y: height * 0.2, radius: 450, angle: 2, speed: 0.0006, color: 'rgba(56, 189, 248, 0.025)' },
-      { x: width * 0.5, y: height * 0.7, radius: 500, angle: 4, speed: 0.0005, color: 'rgba(3, 105, 161, 0.030)' },
-      { x: width * 0.3, y: height * 0.8, radius: 300, angle: 1, speed: 0.0009, color: 'rgba(125, 211, 252, 0.020)' },
+      { x: width * 0.2, y: height * 0.2, radius: 400, angle: 0, speed: 0.0007, color: 'rgba(14, 165, 233, 0.035)' },
+      { x: width * 0.8, y: height * 0.3, radius: 480, angle: 2, speed: 0.0005, color: 'rgba(56, 189, 248, 0.025)' },
+      { x: width * 0.5, y: height * 0.75, radius: 520, angle: 4, speed: 0.0004, color: 'rgba(3, 105, 161, 0.030)' },
     ]
 
     let time = 0
 
     const render = () => {
-      time += 0.015
+      time += 0.012
 
-      // Suavização do movimento do cursor (Lerp)
+      // Suavização do movimento do mouse
       mouse.x += (mouse.targetX - mouse.x) * 0.05
       mouse.y += (mouse.targetY - mouse.y) * 0.05
-      mouse.speed *= 0.95 // Dissipação do impacto do mouse na água
+      mouse.speed *= 0.95
 
       ctx.clearRect(0, 0, width, height)
 
-      // 1. Fundo Oceânico Profundo com Oscilação Orgânica
+      // 1. Fundo Oceânico Abissal com gradiente senoidal
       const bgGradient = ctx.createLinearGradient(
-        width * 0.5 + Math.sin(time * 0.3) * 50,
+        width * 0.5 + Math.sin(time * 0.2) * 40,
         0,
-        width * 0.5 - Math.sin(time * 0.3) * 50,
+        width * 0.5 - Math.sin(time * 0.2) * 40,
         height
       )
-      bgGradient.addColorStop(0, '#020408')
-      bgGradient.addColorStop(0.5, '#050a14')
-      bgGradient.addColorStop(1, '#020306')
+      bgGradient.addColorStop(0, '#010306')
+      bgGradient.addColorStop(0.5, '#040812')
+      bgGradient.addColorStop(1, '#010204')
 
       ctx.fillStyle = bgGradient
       ctx.fillRect(0, 0, width, height)
 
-      // 2. Caustics Subaquáticos e Luzes Desfocadas
+      // 2. Caustics (Luzes de Água em Movimento)
       causticBlobs.forEach((blob) => {
         blob.angle += blob.speed
-        
-        // Movimento senoidal contínuo e imprevisível
-        const offsetX = Math.cos(blob.angle * 1.5) * 60 + Math.sin(time * 0.5) * 30
-        const offsetY = Math.sin(blob.angle * 1.2) * 60 + Math.cos(time * 0.4) * 30
+        const offsetX = Math.cos(blob.angle * 1.4) * 70 + Math.sin(time * 0.4) * 30
+        const offsetY = Math.sin(blob.angle * 1.1) * 70 + Math.cos(time * 0.3) * 30
 
         const cx = blob.x + offsetX
         const cy = blob.y + offsetY
 
         const gradient = ctx.createRadialGradient(
           cx, cy, 0,
-          cx, cy, blob.radius + Math.sin(time + blob.angle) * 40
+          cx, cy, blob.radius + Math.sin(time + blob.angle) * 50
         )
         gradient.addColorStop(0, blob.color)
-        gradient.addColorStop(0.6, 'rgba(4, 20, 40, 0.01)')
+        gradient.addColorStop(0.6, 'rgba(3, 15, 30, 0.01)')
         gradient.addColorStop(1, 'transparent')
 
         ctx.fillStyle = gradient
@@ -130,18 +137,36 @@ function UnderwaterAtmosphere() {
         ctx.fill()
       })
 
-      // 3. Perturbação de Luz e Água pelo Cursor (Mouse Refraction Glow)
+      // 3. Marine Snow (Partículas Abissais em Suspensão)
+      particles.forEach((p) => {
+        p.drift += 0.01
+        p.y += p.speedY
+        p.x += p.speedX + Math.sin(p.drift) * 0.2
+
+        if (p.y > height) {
+          p.y = -10
+          p.x = Math.random() * width
+        }
+        if (p.x < 0) p.x = width
+        if (p.x > width) p.x = 0
+
+        ctx.beginPath()
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2)
+        ctx.fillStyle = `rgba(186, 230, 253, ${p.alpha * (0.8 + Math.sin(p.drift) * 0.2)})`
+        ctx.fill()
+      })
+
+      // 4. Efeito de perturbação do cursor do mouse
       if (!isMobile) {
-        const mouseGlowRadius = 220 + mouse.speed * 25
+        const mouseGlowRadius = 240 + mouse.speed * 20
         const mouseGradient = ctx.createRadialGradient(
           mouse.x, mouse.y, 0,
           mouse.x, mouse.y, mouseGlowRadius
         )
 
-        const baseAlpha = 0.04 + (mouse.speed * 0.008)
-        mouseGradient.addColorStop(0, `rgba(186, 230, 253, ${baseAlpha * 1.5})`)
+        const baseAlpha = 0.035 + (mouse.speed * 0.006)
+        mouseGradient.addColorStop(0, `rgba(186, 230, 253, ${baseAlpha * 1.6})`)
         mouseGradient.addColorStop(0.4, `rgba(56, 189, 248, ${baseAlpha})`)
-        mouseGradient.addColorStop(0.8, 'rgba(14, 165, 233, 0.005)')
         mouseGradient.addColorStop(1, 'transparent')
 
         ctx.fillStyle = mouseGradient
