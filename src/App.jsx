@@ -19,12 +19,12 @@ import logo from './assets/logo.jpeg'
 import './App.css'
 
 // ============================================================
-// ANIMATION INTRO SUBAQUÁTICA (INUNDAÇÃO AMBIENTAL ORGANICA)
+// ANIMATION INTRO SUBAQUÁTICA (COM SUPERFÍCIE ONDULADA ORGÂNICA)
 // ============================================================
 function UnderwaterIntro({ onComplete }) {
   const [shouldRender, setShouldRender] = useState(true)
   const [isFadingOut, setIsFadingOut] = useState(false)
-  const [waterLevel, setWaterLevel] = useState(0) // 0% a 100%
+  const [waterState, setWaterState] = useState({ level: 0, wavePath: '', borderPath: '' })
 
   useEffect(() => {
     // 1. Acessibilidade & Checagem de Sessão
@@ -39,23 +39,56 @@ function UnderwaterIntro({ onComplete }) {
 
     sessionStorage.setItem('hasSeenUnderwaterIntro', 'true')
 
-    // 2. Animação suave de subida do nível d'água (0% -> 100%)
+    // 2. Animação sincronizada (Subida + Ondulação Fluida)
     let startTime = null
-    const duration = 2400 // 2.4 segundos de subida cinematográfica
+    const duration = 2400 // Mantém exatamente a mesma duração
+    let animationFrameId
 
-    const animateWater = (timestamp) => {
+    const animate = (timestamp) => {
       if (!startTime) startTime = timestamp
       const elapsed = timestamp - startTime
       const progress = Math.min(elapsed / duration, 1)
-      
-      // Easing orgânico (Ease Out Cubic/Quart para aceleração e desaceleração de fluido)
+
+      // Easing orgânico da subida (idêntico ao anterior)
       const easeProgress = 1 - Math.pow(1 - progress, 3)
-      setWaterLevel(easeProgress * 100)
+      const currentLevel = easeProgress * 100 // 0 a 100%
+      const topY = 100 - currentLevel // Nível da água em % de cima para baixo
+
+      // Gerador de curva de ondulação sutil (3 ondas com fases e frequências distintas)
+      const timeSec = timestamp * 0.002
+      const segments = 20
+      let points = []
+      let borderPoints = []
+
+      for (let i = 0; i <= segments; i++) {
+        const xPercent = (i / segments) * 100
+        
+        // Combinação de 3 senoides discretas para evitar um padrão repetitivo rígido
+        const wave1 = Math.sin(xPercent * 0.08 + timeSec * 2.5) * 0.65
+        const wave2 = Math.cos(xPercent * 0.14 - timeSec * 1.8) * 0.35
+        const wave3 = Math.sin(xPercent * 0.05 + timeSec * 3.1) * 0.25
+        
+        // Amplitude ultra-sutil (varia levemente entre -1.25% e +1.25% da altura da tela)
+        const totalWaveOffset = wave1 + wave2 + wave3
+
+        const yPoint = Math.min(Math.max(topY + totalWaveOffset, 0), 100)
+        points.push(`${xPercent}% ${yPoint}%`)
+        borderPoints.push(`${xPercent},${yPoint}`)
+      }
+
+      // Constrói o Polígono para o clip-path (Polígono recortando a água da superfície até a base)
+      const clipPolygon = `polygon(0% 100%, ${points.join(', ')}, 100% 100%)`
+
+      setWaterState({
+        level: topY,
+        clipPolygon,
+        borderPoints: borderPoints.join(' ')
+      })
 
       if (progress < 1) {
-        requestAnimationFrame(animateWater)
+        animationFrameId = requestAnimationFrame(animate)
       } else {
-        // Transição direta para o fundo definitivo
+        // Momento final: fusão com a atmosfera permanente
         setTimeout(() => {
           setIsFadingOut(true)
         }, 200)
@@ -67,36 +100,48 @@ function UnderwaterIntro({ onComplete }) {
       }
     }
 
-    requestAnimationFrame(animateWater)
+    animationFrameId = requestAnimationFrame(animate)
 
+    return () => cancelAnimationFrame(animationFrameId)
   }, [onComplete])
 
   if (!shouldRender) return null
 
-  // Cálculo da altura d'água de baixo para cima
-  const topPercent = 100 - waterLevel
-
   return (
     <div className={`environment-inundation-overlay ${isFadingOut ? 'merged' : ''}`}>
-      {/* 1. Camada de Ar / Escuridão (Tudo o que ainda NÃO foi inundado) */}
+      {/* 1. Sala Escura Superior (Região acima da água) */}
       <div 
         className="unflooded-dry-chamber"
-        style={{ height: `${topPercent}%` }}
+        style={{
+          clipPath: waterState.clipPolygon 
+            ? `polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)` 
+            : undefined,
+          height: `${waterState.level}%`
+        }}
       />
 
-      {/* 2. Fronteira da Superfície da Água (Ondulação Luminosa e Refração) */}
-      <div 
-        className="water-surface-boundary"
-        style={{ top: `${topPercent}%` }}
-      >
-        <div className="surface-light-refraction" />
-      </div>
+      {/* 2. Borda / Superfície da Água Ondulada (SVG dinâmico para brilho e refração) */}
+      <svg className="water-surface-svg-container" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="surface-glow-gradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="rgba(186, 230, 253, 0.45)" />
+            <stop offset="50%" stopColor="rgba(56, 189, 248, 0.25)" />
+            <stop offset="100%" stopColor="transparent" />
+          </linearGradient>
+        </defs>
+        <polyline
+          fill="none"
+          stroke="url(#surface-glow-gradient)"
+          strokeWidth="0.8"
+          points={waterState.borderPoints}
+        />
+      </svg>
 
-      {/* 3. Atmosfera Submersa Inundando o Ambiente */}
+      {/* 3. Ambiente Submerso (Massa de água inundada com a ondulação aplicada no clip-path) */}
       <div 
         className="flooded-environment-mass"
         style={{
-          clipPath: `polygon(0 ${topPercent}%, 100% ${topPercent}%, 100% 100%, 0 100%)`
+          clipPath: waterState.clipPolygon || `polygon(0% 100%, 100% 100%, 100% 100%, 0% 100%)`
         }}
       >
         <div className="submerged-ambient-glow" />
