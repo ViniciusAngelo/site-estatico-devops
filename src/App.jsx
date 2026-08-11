@@ -19,7 +19,7 @@ import logo from './assets/logo.jpeg'
 import './App.css'
 
 // ============================================================
-// COMPONENTE DE ILUMINAÇÃO SUAVE DO CURSOR (SPOTLIGHT)
+// COMPONENTE DE ILUMINAÇÃO SUAVE DO CURSOR (SPOTLIGHT DO AMBIENTE)
 // ============================================================
 function AmbientSpotlight() {
   const spotlightRef = useRef(null)
@@ -38,7 +38,6 @@ function AmbientSpotlight() {
 
     window.addEventListener('mousemove', handleMouseMove)
 
-    // Movimento suave com interpolação (lerp) para ar sofisticado
     const render = () => {
       currentX += (mouseX - currentX) * 0.08
       currentY += (mouseY - currentY) * 0.08
@@ -61,11 +60,45 @@ function AmbientSpotlight() {
   return <div ref={spotlightRef} className="mouse-spotlight" />
 }
 
+// ============================================================
+// COMPONENTE DE CARD DE VIDRO COM EFEITO INTERATIVO NO MOUSE
+// ============================================================
+function GlassCard({ children, className = "", onClick }) {
+  const cardRef = useRef(null)
+
+  const handleMouseMove = (e) => {
+    if (!cardRef.current) return
+    const rect = cardRef.current.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
+    cardRef.current.style.setProperty('--mouse-x', `${x}px`)
+    cardRef.current.style.setProperty('--mouse-y', `${y}px`)
+  }
+
+  return (
+    <div
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      onClick={onClick}
+      className={`liquid-glass liquid-glass-hover ${className}`}
+    >
+      {children}
+    </div>
+  )
+}
+
 function App() {
   const [isScrolled, setIsScrolled] = useState(false)
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 50)
+    const handleScroll = () => {
+      if (window.scrollY > 20) {
+        setIsScrolled(true)
+      } else {
+        setIsScrolled(false)
+      }
+    }
+
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
@@ -114,29 +147,29 @@ function App() {
 
   return (
     <div className="ambient-light-container text-zinc-100 selection:bg-white/20">
-      {/* Luz Suave de Fundo Seguindo o Mouse */}
+      {/* Luz Suave de Fundo */}
       <AmbientSpotlight />
+
+      {/* Navbar Fixa no Topo */}
+      <nav className={`navbar-fixed transition-all duration-300 ${
+        isScrolled ? 'navbar-glass py-3' : 'bg-transparent py-6'
+      }`}>
+        <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
+          <div className="flex items-center space-x-3 cursor-pointer" onClick={() => scrollToSection('home')}>
+            <img src={logo} alt="VA Logo" className="w-10 h-10 rounded-xl object-cover border border-white/20 shadow-md" />
+            <span className="font-bold text-lg tracking-tight text-white">Vinicius Angelo</span>
+          </div>
+          <div className="hidden md:flex items-center space-x-8 text-sm font-medium text-zinc-300">
+            <button onClick={() => scrollToSection('home')} className="hover:text-white transition-colors cursor-pointer">Início</button>
+            <button onClick={() => scrollToSection('about')} className="hover:text-white transition-colors cursor-pointer">Sobre</button>
+            <button onClick={() => scrollToSection('services')} className="hover:text-white transition-colors cursor-pointer">Serviços</button>
+            <button onClick={() => scrollToSection('contact')} className="hover:text-white transition-colors cursor-pointer">Contato</button>
+          </div>
+        </div>
+      </nav>
 
       {/* Conteúdo Principal */}
       <div className="content-layer min-h-screen">
-        
-        {/* Navbar */}
-        <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled ? 'liquid-glass py-3' : 'bg-transparent py-6'
-        }`}>
-          <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
-            <div className="flex items-center space-x-3 cursor-pointer" onClick={() => scrollToSection('home')}>
-              <img src={logo} alt="VA Logo" className="w-10 h-10 rounded-xl object-cover border border-white/20 shadow-md" />
-              <span className="font-bold text-lg tracking-tight text-white">Vinicius Angelo</span>
-            </div>
-            <div className="hidden md:flex items-center space-x-8 text-sm font-medium text-zinc-300">
-              <button onClick={() => scrollToSection('home')} className="hover:text-white transition-colors cursor-pointer">Início</button>
-              <button onClick={() => scrollToSection('about')} className="hover:text-white transition-colors cursor-pointer">Sobre</button>
-              <button onClick={() => scrollToSection('services')} className="hover:text-white transition-colors cursor-pointer">Serviços</button>
-              <button onClick={() => scrollToSection('contact')} className="hover:text-white transition-colors cursor-pointer">Contato</button>
-            </div>
-          </div>
-        </nav>
 
         {/* Hero Section */}
         <section id="home" className="min-h-screen flex flex-col justify-center items-center relative pt-20 px-6">
@@ -218,7 +251,7 @@ function App() {
                   { icon: <Database className="w-5 h-5 text-white" />, title: "Arquitetura", desc: "Sistemas robustos e escaláveis" },
                   { icon: <Globe className="w-5 h-5 text-white" />, title: "Consultoria", desc: "Estratégias tecnológicas personalizadas" },
                 ].map((item, i) => (
-                  <div key={i} className="liquid-glass liquid-glass-hover p-5 rounded-2xl flex items-center space-x-4">
+                  <GlassCard key={i} className="p-5 rounded-2xl flex items-center space-x-4">
                     <div className="p-3 rounded-xl icon-glass shrink-0">
                       {item.icon}
                     </div>
@@ -226,7 +259,7 @@ function App() {
                       <h4 className="font-semibold text-white">{item.title}</h4>
                       <p className="text-sm text-zinc-400">{item.desc}</p>
                     </div>
-                  </div>
+                  </GlassCard>
                 ))}
               </div>
             </div>
@@ -241,7 +274,7 @@ function App() {
             </div>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {services.map((service, index) => (
-                <div key={index} className="liquid-glass liquid-glass-hover p-6 rounded-2xl flex flex-col justify-between">
+                <GlassCard key={index} className="p-6 rounded-2xl flex flex-col justify-between">
                   <div>
                     <div className="mb-5 p-3 rounded-xl icon-glass w-fit">
                       {service.icon}
@@ -251,7 +284,7 @@ function App() {
                       {service.description}
                     </p>
                   </div>
-                </div>
+                </GlassCard>
               ))}
             </div>
           </div>
@@ -301,7 +334,7 @@ function App() {
                 </div>
               </div>
 
-              <div className="liquid-glass p-6 rounded-2xl">
+              <GlassCard className="p-6 rounded-2xl">
                 <h4 className="text-lg font-semibold mb-6 text-white">Redes Sociais</h4>
                 <div className="space-y-3">
                   <a
@@ -343,7 +376,7 @@ function App() {
                     </div>
                   </a>
                 </div>
-              </div>
+              </GlassCard>
             </div>
           </div>
         </section>
