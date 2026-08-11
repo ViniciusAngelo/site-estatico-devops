@@ -19,31 +19,135 @@ import logo from './assets/logo.jpeg'
 import './App.css'
 
 // ============================================================
-// COMPONENTE DE ILUMINAÇÃO SUAVE DO CURSOR (SPOTLIGHT DO AMBIENTE)
+// ATMOSFERA SUBAQUÁTICA ABISSAL (CANVAS OTIMIZADO DE CAUSTICS E REFRACÃO)
 // ============================================================
-function AmbientSpotlight() {
-  const spotlightRef = useRef(null)
+function UnderwaterAtmosphere() {
+  const canvasRef = useRef(null)
 
   useEffect(() => {
-    let mouseX = window.innerWidth / 2
-    let mouseY = window.innerHeight / 2
-    let currentX = mouseX
-    let currentY = mouseY
-    let animationFrameId
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
 
-    const handleMouseMove = (e) => {
-      mouseX = e.clientX
-      mouseY = e.clientY
+    let animationFrameId
+    let width = (canvas.width = window.innerWidth)
+    let height = (canvas.height = window.innerHeight)
+
+    const isMobile = window.innerWidth <= 768
+
+    // Estado do mouse com física de desaceleração suave
+    const mouse = {
+      x: width / 2,
+      y: height / 2,
+      targetX: width / 2,
+      targetY: height / 2,
+      speed: 0,
+      lastX: width / 2,
+      lastY: height / 2,
     }
 
+    const handleResize = () => {
+      width = canvas.width = window.innerWidth
+      height = canvas.height = window.innerHeight
+    }
+
+    const handleMouseMove = (e) => {
+      if (isMobile) return
+      mouse.targetX = e.clientX
+      mouse.targetY = e.clientY
+
+      const dx = e.clientX - mouse.lastX
+      const dy = e.clientY - mouse.lastY
+      const dist = Math.sqrt(dx * dx + dy * dy)
+      
+      // Medidor de velocidade do cursor para criar perturbação
+      mouse.speed = Math.min(dist * 0.15, 8)
+
+      mouse.lastX = e.clientX
+      mouse.lastY = e.clientY
+    }
+
+    window.addEventListener('resize', handleResize)
     window.addEventListener('mousemove', handleMouseMove)
 
-    const render = () => {
-      currentX += (mouseX - currentX) * 0.08
-      currentY += (mouseY - currentY) * 0.08
+    // Definição de focos orgânicos de luzes aquáticas (Caustics)
+    const causticBlobs = [
+      { x: width * 0.2, y: height * 0.3, radius: 350, angle: 0, speed: 0.0008, color: 'rgba(14, 165, 233, 0.035)' },
+      { x: width * 0.8, y: height * 0.2, radius: 450, angle: 2, speed: 0.0006, color: 'rgba(56, 189, 248, 0.025)' },
+      { x: width * 0.5, y: height * 0.7, radius: 500, angle: 4, speed: 0.0005, color: 'rgba(3, 105, 161, 0.030)' },
+      { x: width * 0.3, y: height * 0.8, radius: 300, angle: 1, speed: 0.0009, color: 'rgba(125, 211, 252, 0.020)' },
+    ]
 
-      if (spotlightRef.current) {
-        spotlightRef.current.style.transform = `translate3d(${currentX}px, ${currentY}px, 0) translate(-50%, -50%)`
+    let time = 0
+
+    const render = () => {
+      time += 0.015
+
+      // Suavização do movimento do cursor (Lerp)
+      mouse.x += (mouse.targetX - mouse.x) * 0.05
+      mouse.y += (mouse.targetY - mouse.y) * 0.05
+      mouse.speed *= 0.95 // Dissipação do impacto do mouse na água
+
+      ctx.clearRect(0, 0, width, height)
+
+      // 1. Fundo Oceânico Profundo com Oscilação Orgânica
+      const bgGradient = ctx.createLinearGradient(
+        width * 0.5 + Math.sin(time * 0.3) * 50,
+        0,
+        width * 0.5 - Math.sin(time * 0.3) * 50,
+        height
+      )
+      bgGradient.addColorStop(0, '#020408')
+      bgGradient.addColorStop(0.5, '#050a14')
+      bgGradient.addColorStop(1, '#020306')
+
+      ctx.fillStyle = bgGradient
+      ctx.fillRect(0, 0, width, height)
+
+      // 2. Caustics Subaquáticos e Luzes Desfocadas
+      causticBlobs.forEach((blob) => {
+        blob.angle += blob.speed
+        
+        // Movimento senoidal contínuo e imprevisível
+        const offsetX = Math.cos(blob.angle * 1.5) * 60 + Math.sin(time * 0.5) * 30
+        const offsetY = Math.sin(blob.angle * 1.2) * 60 + Math.cos(time * 0.4) * 30
+
+        const cx = blob.x + offsetX
+        const cy = blob.y + offsetY
+
+        const gradient = ctx.createRadialGradient(
+          cx, cy, 0,
+          cx, cy, blob.radius + Math.sin(time + blob.angle) * 40
+        )
+        gradient.addColorStop(0, blob.color)
+        gradient.addColorStop(0.6, 'rgba(4, 20, 40, 0.01)')
+        gradient.addColorStop(1, 'transparent')
+
+        ctx.fillStyle = gradient
+        ctx.beginPath()
+        ctx.arc(cx, cy, blob.radius * 1.2, 0, Math.PI * 2)
+        ctx.fill()
+      })
+
+      // 3. Perturbação de Luz e Água pelo Cursor (Mouse Refraction Glow)
+      if (!isMobile) {
+        const mouseGlowRadius = 220 + mouse.speed * 25
+        const mouseGradient = ctx.createRadialGradient(
+          mouse.x, mouse.y, 0,
+          mouse.x, mouse.y, mouseGlowRadius
+        )
+
+        const baseAlpha = 0.04 + (mouse.speed * 0.008)
+        mouseGradient.addColorStop(0, `rgba(186, 230, 253, ${baseAlpha * 1.5})`)
+        mouseGradient.addColorStop(0.4, `rgba(56, 189, 248, ${baseAlpha})`)
+        mouseGradient.addColorStop(0.8, 'rgba(14, 165, 233, 0.005)')
+        mouseGradient.addColorStop(1, 'transparent')
+
+        ctx.fillStyle = mouseGradient
+        ctx.beginPath()
+        ctx.arc(mouse.x, mouse.y, mouseGlowRadius, 0, Math.PI * 2)
+        ctx.fill()
       }
 
       animationFrameId = requestAnimationFrame(render)
@@ -52,16 +156,22 @@ function AmbientSpotlight() {
     render()
 
     return () => {
+      window.removeEventListener('resize', handleResize)
       window.removeEventListener('mousemove', handleMouseMove)
       cancelAnimationFrame(animationFrameId)
     }
   }, [])
 
-  return <div ref={spotlightRef} className="mouse-spotlight" />
+  return (
+    <>
+      <canvas ref={canvasRef} className="underwater-canvas" />
+      <div className="ocean-vignette" />
+    </>
+  )
 }
 
 // ============================================================
-// COMPONENTE DE CARD DE VIDRO COM EFEITO INTERATIVO NO MOUSE
+// COMPONENTE DE CARD LIQUID GLASS COM REFRAÇÃO INTERATIVA
 // ============================================================
 function GlassCard({ children, className = "", onClick }) {
   const cardRef = useRef(null)
@@ -146,9 +256,9 @@ function App() {
   ]
 
   return (
-    <div className="ambient-light-container text-zinc-100 selection:bg-white/20">
-      {/* Luz Suave de Fundo */}
-      <AmbientSpotlight />
+    <div className="ambient-light-container text-zinc-100 selection:bg-cyan-500/20">
+      {/* Atmosfera Subaquática Escura de Fundo */}
+      <UnderwaterAtmosphere />
 
       {/* Navbar Fixa no Topo */}
       <nav className={`navbar-fixed transition-all duration-300 ${
@@ -175,7 +285,7 @@ function App() {
         <section id="home" className="min-h-screen flex flex-col justify-center items-center relative pt-20 px-6">
           <div className="max-w-3xl mx-auto text-center flex flex-col items-center">
             
-            {/* Logo */}
+            {/* Logo em Glass Box */}
             <div className="p-3 liquid-glass rounded-3xl mb-8">
               <img
                 src={logo}
