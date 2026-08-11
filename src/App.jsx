@@ -1,16 +1,13 @@
 import { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button.jsx'
-import { Card, CardContent } from '@/components/ui/card.jsx'
-import { Badge } from '@/components/ui/badge.jsx'
-import { 
-  Code, 
-  Database, 
-  Globe, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Github, 
-  Linkedin, 
+import {
+  Code,
+  Database,
+  Globe,
+  Mail,
+  Phone,
+  MapPin,
+  Github,
+  Linkedin,
   Instagram,
   ChevronDown,
   Monitor,
@@ -25,9 +22,7 @@ function App() {
   const [isScrolled, setIsScrolled] = useState(false)
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50)
-    }
+    const handleScroll = () => setIsScrolled(window.scrollY > 50)
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
@@ -38,303 +33,265 @@ function App() {
 
   const services = [
     {
-      icon: <Code className="w-8 h-8" />,
+      icon: <Code className="w-6 h-6 text-white" />,
       title: "Desenvolvimento de Software",
       description: "Criação de aplicações web e mobile personalizadas, desde o conceito até a implementação final."
     },
     {
-      icon: <Database className="w-8 h-8" />,
+      icon: <Database className="w-6 h-6 text-white" />,
       title: "Arquitetura de Sistemas",
       description: "Planejamento e implementação de arquiteturas robustas e escaláveis para seus projetos."
     },
     {
-      icon: <Cloud className="w-8 h-8" />,
+      icon: <Cloud className="w-6 h-6 text-white" />,
       title: "Cloud Computing",
       description: "Migração e otimização de sistemas para nuvem, garantindo performance e segurança."
     },
     {
-      icon: <Settings className="w-8 h-8" />,
+      icon: <Settings className="w-6 h-6 text-white" />,
       title: "Consultoria Técnica",
       description: "Análise e otimização de processos tecnológicos para aumentar a eficiência do seu negócio."
     },
     {
-      icon: <Monitor className="w-8 h-8" />,
+      icon: <Monitor className="w-6 h-6 text-white" />,
       title: "Desenvolvimento Web",
       description: "Sites e aplicações web responsivas com as mais modernas tecnologias do mercado."
     },
     {
-      icon: <Computer className="w-8 h-8" />,
+      icon: <Computer className="w-6 h-6 text-white" />,
       title: "Hardware",
       description: "Instalação de equipamentos, suporte e manutenção de hardwares."
     }
   ]
 
   const technologies = [
-    "JavaScript", "React", "Node.js", "Python", "Java", "Azure", 
+    "JavaScript", "React", "Node.js", "Python", "Java", "Azure",
     "Docker", "Windows", "MongoDB", "Git", "Linux", "Redes"
   ]
 
   return (
-    <div className="min-h-screen text-slate-100">
-      {/* Navigation */}
-      <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-        isScrolled ? 'liquid-glass py-3' : 'bg-transparent py-5'
+    <div className="min-h-screen bg-glass-pattern text-zinc-100 selection:bg-white/20">
+      {/* Navbar com Vidro Flutuante */}
+      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isScrolled ? 'liquid-glass py-3' : 'bg-transparent py-6'
       }`}>
-        <div className="container mx-auto px-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <img src={logo} alt="VA Logo" className="w-10 h-10 rounded-xl object-cover border border-white/20" />
-              <span className="text-xl font-bold tracking-tight text-white">Vinicius Angelo</span>
-            </div>
-            <div className="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-200">
-              <button onClick={() => scrollToSection('home')} className="hover:text-black transition-colors">Início</button>
-              <button onClick={() => scrollToSection('about')} className="hover:text-black transition-colors">Sobre</button>
-              <button onClick={() => scrollToSection('services')} className="hover:text-black transition-colors">Serviços</button>
-              <button onClick={() => scrollToSection('contact')} className="hover:text-black transition-colors">Contato</button>
-            </div>
+        <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
+          <div className="flex items-center space-x-3 cursor-pointer" onClick={() => scrollToSection('home')}>
+            <img src={logo} alt="VA Logo" className="w-10 h-10 rounded-xl object-cover border border-white/20 shadow-md" />
+            <span className="font-bold text-lg tracking-tight text-white">Vinicius Angelo</span>
+          </div>
+          <div className="hidden md:flex items-center space-x-8 text-sm font-medium text-zinc-300">
+            <button onClick={() => scrollToSection('home')} className="hover:text-white transition-colors cursor-pointer">Início</button>
+            <button onClick={() => scrollToSection('about')} className="hover:text-white transition-colors cursor-pointer">Sobre</button>
+            <button onClick={() => scrollToSection('services')} className="hover:text-white transition-colors cursor-pointer">Serviços</button>
+            <button onClick={() => scrollToSection('contact')} className="hover:text-white transition-colors cursor-pointer">Contato</button>
           </div>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section id="home" className="min-h-screen flex items-center justify-center relative pt-20">
-        <div className="container mx-auto px-6 text-center">
-          <div className="max-w-4xl mx-auto flex flex-col items-center">
-            <div className="p-1.5 liquid-glass rounded-3xl mb-8">
-              <img 
-                src={logo} 
-                alt="Vinicius Angelo Logo" 
-                className="w-24 h-24 rounded-2xl object-cover"
-              />
-            </div>
-            
-            <h1 className="text-5xl md:text-7xl font-extrabold mb-6 text-white tracking-tight">
-              Vinicius Angelo
-            </h1>
+      <section id="home" className="min-h-screen flex flex-col justify-center items-center relative pt-20 px-6">
+        <div className="max-w-3xl mx-auto text-center flex flex-col items-center">
+          {/* Container do Logo em Vidro Líquido */}
+          <div className="p-3 liquid-glass rounded-3xl mb-8">
+            <img
+              src={logo}
+              alt="Vinicius Angelo Logo"
+              className="w-28 h-28 rounded-2xl object-cover shadow-2xl"
+            />
+          </div>
 
-            {/* Mudado de text-blue-400 para text-zinc-900 (Preto/Grafite escuro) com sombra/glow leve */}
-            <h2 className="text-2xl md:text-3xl text-zinc-900 font-bold mb-8">
-              Engenheiro da Computação
-            </h2>
+          <h1 className="text-5xl md:text-7xl font-extrabold mb-4 text-white tracking-tight">
+            Vinicius Angelo
+          </h1>
 
-            <p className="text-lg md:text-xl text-slate-100 mb-12 max-w-2xl mx-auto leading-relaxed drop-shadow">
-              Especialista em consultoria e desenvolvimento de soluções tecnológicas inovadoras. 
-              Transformo ideias em realidade digital com excelência técnica e visão estratégica.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              {/* Mudado de bg-blue-600 para bg-black / bg-zinc-950 */}
-              <Button 
-                size="lg" 
-                onClick={() => scrollToSection('services')}
-                className="text-lg px-8 py-6 rounded-2xl bg-black hover:bg-zinc-900 text-white shadow-xl border border-zinc-800 transition-all cursor-pointer"
-              >
-                Ver Serviços
-              </Button>
-              <Button 
-                variant="outline" 
-                size="lg"
-                onClick={() => scrollToSection('contact')}
-                className="text-lg px-8 py-6 rounded-2xl liquid-glass liquid-glass-hover text-white border-white/20 cursor-pointer"
-              >
-                Entre em Contato
-              </Button>
-            </div>
+          <h2 className="text-xl md:text-2xl font-semibold mb-6 text-zinc-300">
+            Engenheiro da Computação
+          </h2>
+
+          <p className="text-base md:text-lg text-zinc-300 mb-10 max-w-xl leading-relaxed">
+            Especialista em consultoria e desenvolvimento de soluções tecnológicas inovadoras.
+            Transformo ideias em realidade digital com excelência técnica e visão estratégica.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto justify-center">
+            <button
+              onClick={() => scrollToSection('services')}
+              className="px-8 py-3.5 rounded-xl bg-white text-black font-semibold hover:bg-zinc-200 transition-all cursor-pointer shadow-xl"
+            >
+              Ver Serviços
+            </button>
+            <button
+              onClick={() => scrollToSection('contact')}
+              className="px-8 py-3.5 rounded-xl liquid-glass liquid-glass-hover text-white font-semibold cursor-pointer"
+            >
+              Entre em Contato
+            </button>
           </div>
         </div>
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce cursor-pointer" onClick={() => scrollToSection('about')}>
-          <ChevronDown className="w-6 h-6 text-white" />
+
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce cursor-pointer" onClick={() => scrollToSection('about')}>
+          <ChevronDown className="w-6 h-6 text-zinc-400" />
         </div>
       </section>
 
       {/* About Section */}
-      <section id="about" className="py-24">
-        <div className="container mx-auto px-6">
-          <div className="max-w-5xl mx-auto">
-            <h2 className="text-4xl font-bold text-center mb-16 text-white">Sobre Mim</h2>
-            <div className="grid md:grid-cols-2 gap-12 items-center">
-              <div>
-                <h3 className="text-2xl font-semibold mb-6 text-white">Experiência e Expertise</h3>
-                <p className="text-slate-100 mb-6 leading-relaxed">
-                  Como Engenheiro da Computação, possuo sólida experiência em desenvolvimento de software, 
-                  arquitetura de sistemas e consultoria tecnológica. Minha paixão é criar soluções que 
-                  realmente fazem a diferença no mundo digital.
-                </p>
-                <p className="text-slate-100 mb-8 leading-relaxed">
-                  Trabalho com as mais modernas tecnologias do mercado, sempre focado em entregar 
-                  resultados excepcionais que superem as expectativas dos meus clientes.
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {technologies.map((tech, index) => (
-                    <Badge key={index} className="liquid-glass text-white border-white/20 px-3 py-1.5 text-xs rounded-lg">
-                      {tech}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <Card className="liquid-glass text-white rounded-2xl border-none">
-                  <CardContent className="p-6">
-                    <div className="flex items-center space-x-4">
-                      {/* Ícones com fundo preto */}
-                      <div className="p-3 rounded-xl bg-black/80 text-white border border-white/20">
-                        <Code className="w-6 h-6" />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-lg text-white">Desenvolvimento</h4>
-                        <p className="text-sm text-slate-200">Aplicações web e mobile de alta qualidade</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="liquid-glass text-white rounded-2xl border-none">
-                  <CardContent className="p-6">
-                    <div className="flex items-center space-x-4">
-                      <div className="p-3 rounded-xl bg-black/80 text-white border border-white/20">
-                        <Database className="w-6 h-6" />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-lg text-white">Arquitetura</h4>
-                        <p className="text-sm text-slate-200">Sistemas robustos e escaláveis</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="liquid-glass text-white rounded-2xl border-none">
-                  <CardContent className="p-6">
-                    <div className="flex items-center space-x-4">
-                      <div className="p-3 rounded-xl bg-black/80 text-white border border-white/20">
-                        <Globe className="w-6 h-6" />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-lg text-white">Consultoria</h4>
-                        <p className="text-sm text-slate-200">Estratégias tecnológicas personalizadas</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+      <section id="about" className="py-24 px-6">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-white tracking-tight">Sobre Mim</h2>
+          </div>
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              <h3 className="text-2xl font-semibold mb-4 text-white">Experiência e Expertise</h3>
+              <p className="text-zinc-300 mb-4 leading-relaxed text-sm md:text-base">
+                Como Engenheiro da Computação, possuo sólida experiência em desenvolvimento de software,
+                arquitetura de sistemas e consultoria tecnológica. Minha paixão é criar soluções que
+                realmente fazem a diferença no mundo digital.
+              </p>
+              <p className="text-zinc-300 mb-8 leading-relaxed text-sm md:text-base">
+                Trabalho com as mais modernas tecnologias do mercado, sempre focado em entregar
+                resultados excepcionais que superem as expectativas dos meus clientes.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {technologies.map((tech, index) => (
+                  <span key={index} className="liquid-glass text-zinc-200 px-3.5 py-1.5 rounded-xl text-xs font-mono">
+                    {tech}
+                  </span>
+                ))}
               </div>
             </div>
-          </div>
-        </div>
-      </section>
 
-      {/* Services Section */}
-      <section id="services" className="py-24">
-        <div className="container mx-auto px-6">
-          <div className="max-w-6xl mx-auto">
-            <h2 className="text-4xl font-bold text-center mb-16 text-white">Serviços</h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {services.map((service, index) => (
-                <Card 
-                  key={index} 
-                  className="liquid-glass liquid-glass-hover text-white rounded-2xl border-none"
-                >
-                  <CardContent className="p-8">
-                    <div className="text-white mb-6 p-3 rounded-xl bg-black/80 border border-white/20 w-fit">
-                      {service.icon}
-                    </div>
-                    <h3 className="text-xl font-semibold mb-3 text-white">{service.title}</h3>
-                    <p className="text-slate-200 text-sm leading-relaxed">
-                      {service.description}
-                    </p>
-                  </CardContent>
-                </Card>
+            <div className="space-y-4">
+              {[
+                { icon: <Code className="w-5 h-5 text-white" />, title: "Desenvolvimento", desc: "Aplicações web e mobile de alta qualidade" },
+                { icon: <Database className="w-5 h-5 text-white" />, title: "Arquitetura", desc: "Sistemas robustos e escaláveis" },
+                { icon: <Globe className="w-5 h-5 text-white" />, title: "Consultoria", desc: "Estratégias tecnológicas personalizadas" },
+              ].map((item, i) => (
+                <div key={i} className="liquid-glass liquid-glass-hover p-5 rounded-2xl flex items-center space-x-4">
+                  <div className="p-3 rounded-xl icon-glass shrink-0">
+                    {item.icon}
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-white">{item.title}</h4>
+                    <p className="text-sm text-zinc-400">{item.desc}</p>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
         </div>
       </section>
 
+      {/* Services Section */}
+      <section id="services" className="py-24 px-6">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-white tracking-tight">Serviços</h2>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {services.map((service, index) => (
+              <div key={index} className="liquid-glass liquid-glass-hover p-6 rounded-2xl flex flex-col justify-between">
+                <div>
+                  <div className="mb-5 p-3 rounded-xl icon-glass w-fit">
+                    {service.icon}
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2 text-white">{service.title}</h3>
+                  <p className="text-zinc-400 text-sm leading-relaxed">
+                    {service.description}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Contact Section */}
-      <section id="contact" className="py-24">
-        <div className="container mx-auto px-6">
-          <div className="max-w-5xl mx-auto">
-            <h2 className="text-4xl font-bold text-center mb-16 text-white">Contato</h2>
-            <div className="grid md:grid-cols-2 gap-12">
-              <div>
-                <h3 className="text-2xl font-semibold mb-6 text-white">Vamos Conversar</h3>
-                <p className="text-slate-100 mb-8 leading-relaxed">
-                  Pronto para transformar suas ideias em realidade? Entre em contato comigo 
-                  e vamos discutir como posso ajudar seu projeto a alcançar o próximo nível.
-                </p>
-                <div className="space-y-6">
-                  <div className="flex items-center space-x-4">
-                    <div className="p-3 rounded-xl bg-black/80 text-white border border-white/20">
-                      <Mail className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-sm text-slate-300">Email</p>
-                      <p className="text-white">viniciusenterprise03@gmail.com</p>
-                    </div>
+      <section id="contact" className="py-24 px-6">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-white tracking-tight">Contato</h2>
+          </div>
+          <div className="grid md:grid-cols-2 gap-12">
+            <div>
+              <h3 className="text-2xl font-semibold mb-4 text-white">Vamos Conversar</h3>
+              <p className="text-zinc-300 mb-8 leading-relaxed text-sm md:text-base">
+                Pronto para transformar suas ideias em realidade? Entre em contato comigo
+                e vamos discutir como posso ajudar seu projeto a alcançar o próximo nível.
+              </p>
+              <div className="space-y-5">
+                <div className="flex items-center space-x-4">
+                  <div className="p-3 rounded-xl icon-glass shrink-0">
+                    <Mail className="w-5 h-5 text-white" />
                   </div>
-                  <div className="flex items-center space-x-4">
-                    <div className="p-3 rounded-xl bg-black/80 text-white border border-white/20">
-                      <Phone className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-sm text-slate-300">Telefone</p>
-                      <p className="text-white">+55 (15) 99799-3440</p>
-                    </div>
+                  <div>
+                    <p className="text-xs text-zinc-400 uppercase tracking-wider font-semibold">Email</p>
+                    <p className="text-white font-medium text-sm md:text-base">viniciusenterprise03@gmail.com</p>
                   </div>
-                  <div className="flex items-center space-x-4">
-                    <div className="p-3 rounded-xl bg-black/80 text-white border border-white/20">
-                      <MapPin className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-sm text-slate-300">Localização</p>
-                      <p className="text-white">Porto Feliz, Brasil</p>
-                    </div>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <div className="p-3 rounded-xl icon-glass shrink-0">
+                    <Phone className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-zinc-400 uppercase tracking-wider font-semibold">Telefone</p>
+                    <p className="text-white font-medium text-sm md:text-base">+55 (15) 99799-3440</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <div className="p-3 rounded-xl icon-glass shrink-0">
+                    <MapPin className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-zinc-400 uppercase tracking-wider font-semibold">Localização</p>
+                    <p className="text-white font-medium text-sm md:text-base">Porto Feliz, Brasil</p>
                   </div>
                 </div>
               </div>
+            </div>
 
-              <div>
-                <Card className="liquid-glass text-white rounded-2xl border-none">
-                  <CardContent className="p-8">
-                    <h4 className="text-xl font-semibold mb-6 text-white">Redes Sociais</h4>
-                    <div className="space-y-3">
-                      <a 
-                        href="https://www.instagram.com/vncs_ang.exe" 
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex items-center space-x-4 p-4 rounded-xl hover:bg-white/10 transition-all group border border-transparent hover:border-white/10"
-                      >
-                        <Instagram className="w-5 h-5 text-white group-hover:scale-110 transition-transform" />
-                        <div>
-                          <p className="font-medium text-sm text-white">Instagram</p>
-                          <p className="text-xs text-slate-200">@vncs_ang.exe</p>
-                        </div>
-                      </a>
-                      <a 
-                        href="https://www.linkedin.com/in/vinicius-gonçalves-angelo-949b49215/" 
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex items-center space-x-4 p-4 rounded-xl hover:bg-white/10 transition-all group border border-transparent hover:border-white/10"
-                      >
-                        <Linkedin className="w-5 h-5 text-white group-hover:scale-110 transition-transform" />
-                        <div>
-                          <p className="font-medium text-sm text-white">LinkedIn</p>
-                          <p className="text-xs text-slate-200">Vinicius Gonçalves Angelo</p>
-                        </div>
-                      </a>
-                      <a 
-                         href="https://www.github.com/ViniciusAngelo" 
-                         target="_blank"
-                         rel="noreferrer"
-                         className="flex items-center space-x-4 p-4 rounded-xl hover:bg-white/10 transition-all group border border-transparent hover:border-white/10"
-                       >
-                         <Github className="w-5 h-5 text-white group-hover:scale-110 transition-transform" />
-                         <div>
-                           <p className="font-medium text-sm text-white">GitHub</p>
-                           <p className="text-xs text-slate-200">ViniciusAngelo</p>
-                         </div>
-                       </a>
-                    </div>
-                  </CardContent>
-                </Card>
+            <div className="liquid-glass p-6 rounded-2xl">
+              <h4 className="text-lg font-semibold mb-6 text-white">Redes Sociais</h4>
+              <div className="space-y-3">
+                <a
+                  href="https://www.instagram.com/vncs_ang.exe"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center space-x-4 p-3.5 rounded-xl hover:bg-white/10 transition-all group"
+                >
+                  <Instagram className="w-5 h-5 text-white group-hover:scale-110 transition-transform" />
+                  <div>
+                    <p className="font-medium text-sm text-white">Instagram</p>
+                    <p className="text-xs text-zinc-400">@vncs_ang.exe</p>
+                  </div>
+                </a>
+
+                <a
+                  href="https://www.linkedin.com/in/vinicius-gon%C3%A7alves-angelo-949b49215/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center space-x-4 p-3.5 rounded-xl hover:bg-white/10 transition-all group"
+                >
+                  <Linkedin className="w-5 h-5 text-white group-hover:scale-110 transition-transform" />
+                  <div>
+                    <p className="font-medium text-sm text-white">LinkedIn</p>
+                    <p className="text-xs text-zinc-400">Vinicius Gonçalves Angelo</p>
+                  </div>
+                </a>
+
+                <a
+                  href="https://www.github.com/ViniciusAngelo"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center space-x-4 p-3.5 rounded-xl hover:bg-white/10 transition-all group"
+                >
+                  <Github className="w-5 h-5 text-white group-hover:scale-110 transition-transform" />
+                  <div>
+                    <p className="font-medium text-sm text-white">GitHub</p>
+                    <p className="text-xs text-zinc-400">ViniciusAngelo</p>
+                  </div>
+                </a>
               </div>
             </div>
           </div>
@@ -342,13 +299,13 @@ function App() {
       </section>
 
       {/* Footer */}
-      <footer className="py-8 liquid-glass border-t border-white/10">
-        <div className="container mx-auto px-6 text-center">
-          <div className="flex items-center justify-center space-x-3 mb-4">
-            <img src={logo} alt="VA Logo" className="w-8 h-8 rounded-lg object-cover" />
-            <span className="font-semibold text-white">Vinicius Angelo</span>
+      <footer className="py-8 liquid-glass border-t border-white/10 mt-12">
+        <div className="max-w-5xl mx-auto px-6 text-center">
+          <div className="flex items-center justify-center space-x-3 mb-3">
+            <img src={logo} alt="VA Logo" className="w-7 h-7 rounded-lg object-cover" />
+            <span className="font-semibold text-white text-sm">Vinicius Angelo</span>
           </div>
-          <p className="text-sm text-slate-300">
+          <p className="text-xs text-zinc-400">
             © 2025 Vinicius Angelo. Todos os direitos reservados.
           </p>
         </div>
