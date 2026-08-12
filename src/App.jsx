@@ -149,8 +149,9 @@ function UnderwaterIntro({ onComplete }) {
     </div>
   )
 }
+
 // ============================================================
-// ATMOSFERA SUBAQUÁTICA ABISSAL (COM MARINE SNOW E CAUSTICS)
+// ATMOSFERA SUBAQUÁTICA ABISSAL (COM INTERAÇÃO SUTIL DE MOUSE)
 // ============================================================
 function UnderwaterAtmosphere() {
   const canvasRef = useRef(null)
@@ -167,15 +168,18 @@ function UnderwaterAtmosphere() {
 
     const isMobile = window.innerWidth <= 768
 
-    // Estado do mouse com física de suavização
+    // Estado do mouse com física de velocidade e inércia
     const mouse = {
-      x: width / 2,
-      y: height / 2,
-      targetX: width / 2,
-      targetY: height / 2,
+      x: -1000,
+      y: -1000,
+      targetX: -1000,
+      targetY: -1000,
+      vx: 0,
+      vy: 0,
       speed: 0,
-      lastX: width / 2,
-      lastY: height / 2,
+      lastX: -1000,
+      lastY: -1000,
+      isActive: false
     }
 
     const handleResize = () => {
@@ -187,6 +191,7 @@ function UnderwaterAtmosphere() {
       if (isMobile) return
       mouse.targetX = e.clientX
       mouse.targetY = e.clientY
+      mouse.isActive = true
 
       const dx = e.clientX - mouse.lastX
       const dy = e.clientY - mouse.lastY
@@ -197,19 +202,33 @@ function UnderwaterAtmosphere() {
       mouse.lastY = e.clientY
     }
 
-    window.addEventListener('resize', handleResize)
-    window.addEventListener('mousemove', handleMouseMove)
+    const handleMouseLeave = () => {
+      mouse.isActive = false
+      mouse.targetX = -1000
+      mouse.targetY = -1000
+    }
 
-    // Partículas Abissais (Marine Snow)
-    const particleCount = isMobile ? 25 : 55
+    window.addEventListener('resize', handleResize)
+    window.addEventListener('mousemove', handleMouseMove, { passive: true })
+    document.addEventListener('mouseleave', handleMouseLeave, { passive: true })
+
+    // Configurações de interação física da água
+    const MOUSE_RADIUS = 130 // Raio de influência pequeno e sutil
+    const PUSH_STRENGTH = 0.65 // Força de repulsão suave
+    const WATER_FRICTION = 0.92 // Viscosidade para dissipação natural
+
+    // Partículas Abissais (Marine Snow) com suporte a vetores de perturbação
+    const particleCount = isMobile ? 35 : 75
     const particles = Array.from({ length: particleCount }, () => ({
       x: Math.random() * width,
       y: Math.random() * height,
       radius: Math.random() * 1.8 + 0.5,
       alpha: Math.random() * 0.35 + 0.1,
-      speedY: Math.random() * 0.2 + 0.05,
-      speedX: Math.random() * 0.1 - 0.05,
+      speedY: Math.random() * 0.1 + 0.02,
+      speedX: Math.random() * 0.05 - 0.025,
       drift: Math.random() * Math.PI * 2,
+      pushVx: 0,
+      pushVy: 0
     }))
 
     // Luzes de Caustics Subaquáticos
@@ -224,9 +243,14 @@ function UnderwaterAtmosphere() {
     const render = () => {
       time += 0.012
 
-      // Suavização do movimento do mouse
-      mouse.x += (mouse.targetX - mouse.x) * 0.05
-      mouse.y += (mouse.targetY - mouse.y) * 0.05
+      // Suavização da posição do mouse e cálculo de velocidade do cursor
+      const prevX = mouse.x
+      const prevY = mouse.y
+      
+      mouse.x += (mouse.targetX - mouse.x) * 0.15
+      mouse.y += (mouse.targetY - mouse.y) * 0.15
+      mouse.vx = mouse.x - prevX
+      mouse.vy = mouse.y - prevY
       mouse.speed *= 0.95
 
       ctx.clearRect(0, 0, width, height)
@@ -268,11 +292,40 @@ function UnderwaterAtmosphere() {
         ctx.fill()
       })
 
-      // 3. Marine Snow (Partículas Abissais em Suspensão)
+      // 3. Marine Snow com Interatividade Fluida de Repulsão
       particles.forEach((p) => {
+        // Cálculo de força de repulsão quando o cursor passa perto
+        if (!isMobile && mouse.isActive) {
+          const dx = p.x - mouse.x
+          const dy = p.y - mouse.y
+          const distSq = dx * dx + dy * dy
+          const radiusSq = MOUSE_RADIUS * MOUSE_RADIUS
+
+          if (distSq < radiusSq && distSq > 0) {
+            const dist = Math.sqrt(distSq)
+            const force = (1 - dist / MOUSE_RADIUS)
+
+            // Empurrão para longe da trajetória do mouse
+            const nx = dx / dist
+            const ny = dy / dist
+
+            p.pushVx += nx * force * PUSH_STRENGTH
+            p.pushVy += ny * force * PUSH_STRENGTH
+
+            // Pequeno arrasto proveniente do movimento do mouse
+            p.pushVx += mouse.vx * force * 0.02
+            p.pushVy += mouse.vy * force * 0.02
+          }
+        }
+
+        // Dissipação por viscosidade da água
+        p.pushVx *= WATER_FRICTION
+        p.pushVy *= WATER_FRICTION
+
+        // Atualização de posição (Deriva natural + Perturbação da água)
         p.drift += 0.01
-        p.y += p.speedY
-        p.x += p.speedX + Math.sin(p.drift) * 0.2
+        p.y += p.speedY + p.pushVy
+        p.x += p.speedX + Math.sin(p.drift) * 0.2 + p.pushVx
 
         if (p.y > height) {
           p.y = -10
@@ -287,8 +340,8 @@ function UnderwaterAtmosphere() {
         ctx.fill()
       })
 
-      // 4. Efeito de perturbação do cursor do mouse
-      if (!isMobile) {
+      // 4. Glow discreto acompanhando o cursor no fundo do canvas
+      if (!isMobile && mouse.isActive) {
         const mouseGlowRadius = 240 + mouse.speed * 20
         const mouseGradient = ctx.createRadialGradient(
           mouse.x, mouse.y, 0,
@@ -314,6 +367,7 @@ function UnderwaterAtmosphere() {
     return () => {
       window.removeEventListener('resize', handleResize)
       window.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseleave', handleMouseLeave)
       cancelAnimationFrame(animationFrameId)
     }
   }, [])
