@@ -10,6 +10,10 @@ jobs:
   lint-and-build:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: ./site-estatico-devops
+
     steps:
       - name: 1. Baixar o código do repositório
         uses: actions/checkout@v4
@@ -18,10 +22,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: 'npm'
 
       - name: 3. Instalar dependências
-        run: npm ci --legacy-peer-deps
+        run: npm install --legacy-peer-deps
 
       - name: 4. Executar verificação de lint (Qualidade do Código)
         run: npm run lint:js
