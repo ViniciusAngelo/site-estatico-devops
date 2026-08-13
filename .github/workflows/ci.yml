@@ -10,10 +10,6 @@ jobs:
   lint-and-build:
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: ./site-estatico-devops
-
     steps:
       - name: 1. Baixar o código do repositório
         uses: actions/checkout@v4
