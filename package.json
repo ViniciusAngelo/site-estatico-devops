@@ -6,8 +6,10 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint:js": "eslint .",
+    "lint:css": "stylelint \"**/*.css\"",
+    "lint": "npm run lint:js && npm run lint:css"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.0.1",
@@ -73,5 +75,18 @@
     "tw-animate-css": "^1.2.9",
     "vite": "^6.3.5"
   },
-  "packageManager": "pnpm@10.4.1+sha512.c753b6c3ad7afa13af388fa6d808035a008e30ea9993f58c6663e2bc5ff21679aa834db094987129aa4d488b86df57f7b634981b2f827cdcacc698cc0cfb88af"
+  "packageManager": "pnpm@10.4.1+sha512.c753b6c3ad7afa13af388fa6d808035a008e30ea9993f58c6663e2bc5ff21679aa834db094987129aa4d488b86df57f7b634981b2f827cdcacc698cc0cfb88af",
+  "description": "Site profissional desenvolvido em React para Vinicius Angelo, Engenheiro da Computação especializado em consultoria e serviços de tecnologia.",
+  "main": "eslint.config.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ViniciusAngelo/site-estatico-devops.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ViniciusAngelo/site-estatico-devops/issues"
+  },
+  "homepage": "https://github.com/ViniciusAngelo/site-estatico-devops#readme"
 }

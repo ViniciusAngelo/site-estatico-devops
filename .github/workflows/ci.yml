@@ -1,0 +1,30 @@
+name: CI - Validação de Código
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint-and-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. Baixar o código do repositório
+        uses: actions/checkout@v4
+
+      - name: 2. Configurar o ambiente Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: 3. Instalar dependências
+        run: npm ci --legacy-peer-deps
+
+      - name: 4. Executar verificação de lint (Qualidade do Código)
+        run: npm run lint:js
+
+      - name: 5. Testar o Build da Aplicação
+        run: npm run build
