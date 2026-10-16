@@ -13,7 +13,11 @@ import {
   Monitor,
   Cloud,
   Settings,
-  Computer
+  Computer,
+  Server,
+  ShieldCheck,
+  Terminal,
+  Cpu
 } from 'lucide-react'
 import logo from './assets/logo.jpeg'
 import './App.css'
@@ -41,7 +45,7 @@ function UnderwaterIntro({ onComplete }) {
 
     // 2. Animação sincronizada (Subida + Ondulação Fluida)
     let startTime = null
-    const duration = 2400 // Mantém exatamente a mesma duração
+    const duration = 2400
     let animationFrameId
 
     const animate = (timestamp) => {
@@ -49,12 +53,10 @@ function UnderwaterIntro({ onComplete }) {
       const elapsed = timestamp - startTime
       const progress = Math.min(elapsed / duration, 1)
 
-      // Easing orgânico da subida (idêntico ao anterior)
       const easeProgress = 1 - Math.pow(1 - progress, 3)
-      const currentLevel = easeProgress * 100 // 0 a 100%
-      const topY = 100 - currentLevel // Nível da água em % de cima para baixo
+      const currentLevel = easeProgress * 100
+      const topY = 100 - currentLevel
 
-      // Gerador de curva de ondulação sutil (3 ondas com fases e frequências distintas)
       const timeSec = timestamp * 0.002
       const segments = 20
       let points = []
@@ -63,12 +65,10 @@ function UnderwaterIntro({ onComplete }) {
       for (let i = 0; i <= segments; i++) {
         const xPercent = (i / segments) * 100
         
-        // Combinação de 3 senoides discretas para evitar um padrão repetitivo rígido
         const wave1 = Math.sin(xPercent * 0.08 + timeSec * 2.5) * 0.65
         const wave2 = Math.cos(xPercent * 0.14 - timeSec * 1.8) * 0.35
         const wave3 = Math.sin(xPercent * 0.05 + timeSec * 3.1) * 0.25
         
-        // Amplitude ultra-sutil (varia levemente entre -1.25% e +1.25% da altura da tela)
         const totalWaveOffset = wave1 + wave2 + wave3
 
         const yPoint = Math.min(Math.max(topY + totalWaveOffset, 0), 100)
@@ -76,7 +76,6 @@ function UnderwaterIntro({ onComplete }) {
         borderPoints.push(`${xPercent},${yPoint}`)
       }
 
-      // Constrói o Polígono para o clip-path (Polígono recortando a água da superfície até a base)
       const clipPolygon = `polygon(0% 100%, ${points.join(', ')}, 100% 100%)`
 
       setWaterState({
@@ -88,7 +87,6 @@ function UnderwaterIntro({ onComplete }) {
       if (progress < 1) {
         animationFrameId = requestAnimationFrame(animate)
       } else {
-        // Momento final: fusão com a atmosfera permanente
         setTimeout(() => {
           setIsFadingOut(true)
         }, 200)
@@ -109,7 +107,6 @@ function UnderwaterIntro({ onComplete }) {
 
   return (
     <div className={`environment-inundation-overlay ${isFadingOut ? 'merged' : ''}`}>
-      {/* 1. Sala Escura Superior (Região acima da água) */}
       <div 
         className="unflooded-dry-chamber"
         style={{
@@ -120,7 +117,6 @@ function UnderwaterIntro({ onComplete }) {
         }}
       />
 
-      {/* 2. Borda / Superfície da Água Ondulada (SVG dinâmico para brilho e refração) */}
       <svg className="water-surface-svg-container" viewBox="0 0 100 100" preserveAspectRatio="none">
         <defs>
           <linearGradient id="surface-glow-gradient" x1="0" y1="0" x2="0" y2="1">
@@ -137,7 +133,6 @@ function UnderwaterIntro({ onComplete }) {
         />
       </svg>
 
-      {/* 3. Ambiente Submerso (Massa de água inundada com a ondulação aplicada no clip-path) */}
       <div 
         className="flooded-environment-mass"
         style={{
@@ -168,7 +163,6 @@ function UnderwaterAtmosphere() {
 
     const isMobile = window.innerWidth <= 768
 
-    // Estado do mouse com física de velocidade e inércia
     const mouse = {
       x: -1000,
       y: -1000,
@@ -212,12 +206,10 @@ function UnderwaterAtmosphere() {
     window.addEventListener('mousemove', handleMouseMove, { passive: true })
     document.addEventListener('mouseleave', handleMouseLeave, { passive: true })
 
-    // Configurações de interação física da água
-    const MOUSE_RADIUS = 130 // Raio de influência pequeno e sutil
-    const PUSH_STRENGTH = 0.65 // Força de repulsão suave
-    const WATER_FRICTION = 0.92 // Viscosidade para dissipação natural
+    const MOUSE_RADIUS = 130
+    const PUSH_STRENGTH = 0.65
+    const WATER_FRICTION = 0.92
 
-    // Partículas Abissais (Marine Snow) com suporte a vetores de perturbação
     const particleCount = isMobile ? 35 : 75
     const particles = Array.from({ length: particleCount }, () => ({
       x: Math.random() * width,
@@ -231,7 +223,6 @@ function UnderwaterAtmosphere() {
       pushVy: 0
     }))
 
-    // Luzes de Caustics Subaquáticos
     const causticBlobs = [
       { x: width * 0.2, y: height * 0.2, radius: 400, angle: 0, speed: 0.0007, color: 'rgba(14, 165, 233, 0.035)' },
       { x: width * 0.8, y: height * 0.3, radius: 480, angle: 2, speed: 0.0005, color: 'rgba(56, 189, 248, 0.025)' },
@@ -243,7 +234,6 @@ function UnderwaterAtmosphere() {
     const render = () => {
       time += 0.012
 
-      // Suavização da posição do mouse e cálculo de velocidade do cursor
       const prevX = mouse.x
       const prevY = mouse.y
       
@@ -255,7 +245,6 @@ function UnderwaterAtmosphere() {
 
       ctx.clearRect(0, 0, width, height)
 
-      // 1. Fundo Oceânico Abissal com gradiente senoidal
       const bgGradient = ctx.createLinearGradient(
         width * 0.5 + Math.sin(time * 0.2) * 40,
         0,
@@ -269,7 +258,6 @@ function UnderwaterAtmosphere() {
       ctx.fillStyle = bgGradient
       ctx.fillRect(0, 0, width, height)
 
-      // 2. Caustics (Luzes de Água em Movimento)
       causticBlobs.forEach((blob) => {
         blob.angle += blob.speed
         const offsetX = Math.cos(blob.angle * 1.4) * 70 + Math.sin(time * 0.4) * 30
@@ -292,9 +280,7 @@ function UnderwaterAtmosphere() {
         ctx.fill()
       })
 
-      // 3. Marine Snow com Interatividade Fluida de Repulsão
       particles.forEach((p) => {
-        // Cálculo de força de repulsão quando o cursor passa perto
         if (!isMobile && mouse.isActive) {
           const dx = p.x - mouse.x
           const dy = p.y - mouse.y
@@ -305,24 +291,20 @@ function UnderwaterAtmosphere() {
             const dist = Math.sqrt(distSq)
             const force = (1 - dist / MOUSE_RADIUS)
 
-            // Empurrão para longe da trajetória do mouse
             const nx = dx / dist
             const ny = dy / dist
 
             p.pushVx += nx * force * PUSH_STRENGTH
             p.pushVy += ny * force * PUSH_STRENGTH
 
-            // Pequeno arrasto proveniente do movimento do mouse
             p.pushVx += mouse.vx * force * 0.02
             p.pushVy += mouse.vy * force * 0.02
           }
         }
 
-        // Dissipação por viscosidade da água
         p.pushVx *= WATER_FRICTION
         p.pushVy *= WATER_FRICTION
 
-        // Atualização de posição (Deriva natural + Perturbação da água)
         p.drift += 0.01
         p.y += p.speedY + p.pushVy
         p.x += p.speedX + Math.sin(p.drift) * 0.2 + p.pushVx
@@ -340,7 +322,6 @@ function UnderwaterAtmosphere() {
         ctx.fill()
       })
 
-      // 4. Glow discreto acompanhando o cursor no fundo do canvas
       if (!isMobile && mouse.isActive) {
         const mouseGlowRadius = 240 + mouse.speed * 20
         const mouseGradient = ctx.createRadialGradient(
@@ -429,45 +410,45 @@ function App() {
 
   const services = [
     {
-      icon: <Code className="w-6 h-6 text-white" />,
-      title: "Desenvolvimento de Software",
-      description: "Criação de aplicações web e mobile personalizadas, desde o conceito até a implementação final."
-    },
-    {
-      icon: <Database className="w-6 h-6 text-white" />,
-      title: "Arquitetura de Sistemas",
-      description: "Planejamento e implementação de arquiteturas robustas e escaláveis para seus projetos."
+      icon: <Server className="w-6 h-6 text-white" />,
+      title: "Infraestrutura de TI & Sustentação",
+      description: "Administração e sustentação de ambientes corporativos Windows, Active Directory e Microsoft 365 com foco em continuidade e alta disponibilidade."
     },
     {
       icon: <Cloud className="w-6 h-6 text-white" />,
-      title: "Cloud Computing",
-      description: "Migração e otimização de sistemas para nuvem, garantindo performance e segurança."
+      title: "Cloud & Containers",
+      description: "Conhecimento em Microsoft Azure (AZ-900), além de experiência com conteinerização (Docker) e orquestração (Kubernetes)."
+    },
+    {
+      icon: <Globe className="w-6 h-6 text-white" />,
+      title: "Redes & Conectividade",
+      description: "Troubleshooting de redes, conectividade corporativa, análise de tráfego e suporte a ambientes de infraestrutura multinacionais."
+    },
+    {
+      icon: <Code className="w-6 h-6 text-white" />,
+      title: "DevOps & Automação",
+      description: "Automação de processos operacionais e gestão de infraestrutura utilizando PowerShell, Bash, Python e práticas de CI/CD."
     },
     {
       icon: <Settings className="w-6 h-6 text-white" />,
-      title: "Consultoria Técnica",
-      description: "Análise e otimização de processos tecnológicos para aumentar a eficiência do seu negócio."
+      title: "Projetos & Migrações",
+      description: "Participação em projetos de implantação, migração e melhoria contínua de infraestrutura com suporte e validação pós-migração."
     },
     {
-      icon: <Monitor className="w-6 h-6 text-white" />,
-      title: "Desenvolvimento Web",
-      description: "Sites e aplicações web responsivas com as mais modernas tecnologias do mercado."
-    },
-    {
-      icon: <Computer className="w-6 h-6 text-white" />,
-      title: "Hardware",
-      description: "Instalação de equipamentos, suporte e manutenção de hardwares."
+      icon: <ShieldCheck className="w-6 h-6 text-white" />,
+      title: "Gestão de Acessos & Políticas",
+      description: "Gerenciamento de usuários, grupos, permissões e políticas de segurança da informação em ambientes globais."
     }
   ]
 
   const technologies = [
-    "JavaScript", "React", "Node.js", "Python", "Java", "Azure",
-    "Docker", "Windows", "MongoDB", "Git", "Linux", "Redes"
+    "Active Directory", "Microsoft 365", "Azure (AZ-900)", "Docker", "Kubernetes",
+    "PowerShell", "Bash", "Python", "Windows Server", "Redes & Conectividade", "Linux", "Git"
   ]
 
   return (
     <div className="ambient-light-container text-zinc-100 selection:bg-cyan-500/20">
-      {/* Animacao de Entrada (Inundacao Subaquatica no 1o Acesso) */}
+      {/* Animacao de Entrada */}
       <UnderwaterIntro />
 
       {/* Atmosfera Subaquática Escura de Fundo */}
@@ -512,12 +493,11 @@ function App() {
             </h1>
 
             <h2 className="text-xl md:text-2xl font-semibold mb-6 text-zinc-300">
-              Engenheiro da Computação
+              Engenheiro da Computação | Infraestrutura de TI & Cloud
             </h2>
 
             <p className="text-base md:text-lg text-zinc-300 mb-10 max-w-xl leading-relaxed">
-              Especialista em consultoria e desenvolvimento de soluções tecnológicas inovadoras.
-              Transformo ideias em realidade digital com excelência técnica e visão estratégica.
+              Especialista em sustentação de ambientes corporativos, computação em nuvem e infraestrutura de TI em contextos multinacionais.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto justify-center">
@@ -525,7 +505,7 @@ function App() {
                 onClick={() => scrollToSection('services')}
                 className="px-8 py-3.5 rounded-xl bg-white text-black font-semibold hover:bg-zinc-200 transition-all cursor-pointer shadow-xl"
               >
-                Ver Serviços
+                Ver Especialidades
               </button>
               <button
                 onClick={() => scrollToSection('contact')}
@@ -549,15 +529,12 @@ function App() {
             </div>
             <div className="grid md:grid-cols-2 gap-12 items-center">
               <div>
-                <h3 className="text-2xl font-semibold mb-4 text-white">Experiência e Expertise</h3>
+                <h3 className="text-2xl font-semibold mb-4 text-white">Experiência e Visão</h3>
                 <p className="text-zinc-300 mb-4 leading-relaxed text-sm md:text-base">
-                  Como Engenheiro da Computação, possuo sólida experiência em desenvolvimento de software,
-                  arquitetura de sistemas e consultoria tecnológica. Minha paixão é criar soluções que
-                  realmente fazem a diferença no mundo digital.
+                  Engenheiro da Computação com atuação prática em sustentação e administração de ambientes corporativos em empresa multinacional. Experiência sólida com ecossistema Windows, Active Directory, Microsoft 365, redes e gestão de incidentes operacionais.
                 </p>
                 <p className="text-zinc-300 mb-8 leading-relaxed text-sm md:text-base">
-                  Trabalho com as mais modernas tecnologias do mercado, sempre focado em entregar
-                  resultados excepcionais que superem as expectativas dos meus clientes.
+                  Atuante em projetos de migração e melhoria de infraestrutura, com foco em automação (PowerShell/Python), computação em nuvem (Azure) e especialização em DevOps & Cloud Platform Engineering.
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {technologies.map((tech, index) => (
@@ -570,9 +547,9 @@ function App() {
 
               <div className="space-y-4">
                 {[
-                  { icon: <Code className="w-5 h-5 text-white" />, title: "Desenvolvimento", desc: "Aplicações web e mobile de alta qualidade" },
-                  { icon: <Database className="w-5 h-5 text-white" />, title: "Arquitetura", desc: "Sistemas robustos e escaláveis" },
-                  { icon: <Globe className="w-5 h-5 text-white" />, title: "Consultoria", desc: "Estratégias tecnológicas personalizadas" },
+                  { icon: <Server className="w-5 h-5 text-white" />, title: "Infraestrutura", desc: "Sustentação de ambientes Windows e M365" },
+                  { icon: <Cloud className="w-5 h-5 text-white" />, title: "Cloud & DevOps", desc: "Microsoft Azure, Docker e Kubernetes" },
+                  { icon: <Globe className="w-5 h-5 text-white" />, title: "Redes & Segurança", desc: "Troubleshooting de redes e gestão de acessos" },
                 ].map((item, i) => (
                   <GlassCard key={i} className="p-5 rounded-2xl flex items-center space-x-4">
                     <div className="p-3 rounded-xl icon-glass shrink-0">
@@ -593,7 +570,7 @@ function App() {
         <section id="services" className="py-24 px-6">
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold text-white tracking-tight">Serviços</h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-white tracking-tight">Áreas de Atuação</h2>
             </div>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {services.map((service, index) => (
@@ -623,8 +600,7 @@ function App() {
               <div>
                 <h3 className="text-2xl font-semibold mb-4 text-white">Vamos Conversar</h3>
                 <p className="text-zinc-300 mb-8 leading-relaxed text-sm md:text-base">
-                  Pronto para transformar suas ideias em realidade? Entre em contato comigo
-                  e vamos discutir como posso ajudar seu projeto a alcançar o próximo nível.
+                  Entre em contato para discutirmos oportunidades em infraestrutura de TI, projetos de nuvem, automação e DevOps.
                 </p>
                 <div className="space-y-5">
                   <div className="flex items-center space-x-4">
@@ -633,7 +609,7 @@ function App() {
                     </div>
                     <div>
                       <p className="text-xs text-zinc-400 uppercase tracking-wider font-semibold">Email</p>
-                      <p className="text-white font-medium text-sm md:text-base">viniciusenterprise03@gmail.com</p>
+                      <p className="text-white font-medium text-sm md:text-base">vinicius.g.angelo@gmail.com</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-4">
@@ -651,30 +627,17 @@ function App() {
                     </div>
                     <div>
                       <p className="text-xs text-zinc-400 uppercase tracking-wider font-semibold">Localização</p>
-                      <p className="text-white font-medium text-sm md:text-base">Porto Feliz, Brasil</p>
+                      <p className="text-white font-medium text-sm md:text-base">Porto Feliz, SP - Brasil</p>
                     </div>
                   </div>
                 </div>
               </div>
 
               <GlassCard className="p-6 rounded-2xl">
-                <h4 className="text-lg font-semibold mb-6 text-white">Redes Sociais</h4>
+                <h4 className="text-lg font-semibold mb-6 text-white">Redes Profissionais</h4>
                 <div className="space-y-3">
                   <a
-                    href="https://www.instagram.com/vncs_ang.exe"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center space-x-4 p-3.5 rounded-xl hover:bg-white/10 transition-all group"
-                  >
-                    <Instagram className="w-5 h-5 text-white group-hover:scale-110 transition-transform" />
-                    <div>
-                      <p className="font-medium text-sm text-white">Instagram</p>
-                      <p className="text-xs text-zinc-400">@vncs_ang.exe</p>
-                    </div>
-                  </a>
-
-                  <a
-                    href="https://www.linkedin.com/in/vinicius-gon%C3%A7alves-angelo-949b49215/"
+                    href="https://www.linkedin.com/in/viniciusgangelo"
                     target="_blank"
                     rel="noreferrer"
                     className="flex items-center space-x-4 p-3.5 rounded-xl hover:bg-white/10 transition-all group"
@@ -682,7 +645,7 @@ function App() {
                     <Linkedin className="w-5 h-5 text-white group-hover:scale-110 transition-transform" />
                     <div>
                       <p className="font-medium text-sm text-white">LinkedIn</p>
-                      <p className="text-xs text-zinc-400">Vinicius Gonçalves Angelo</p>
+                      <p className="text-xs text-zinc-400">in/viniciusgangelo</p>
                     </div>
                   </a>
 
@@ -695,7 +658,20 @@ function App() {
                     <Github className="w-5 h-5 text-white group-hover:scale-110 transition-transform" />
                     <div>
                       <p className="font-medium text-sm text-white">GitHub</p>
-                      <p className="text-xs text-zinc-400">ViniciusAngelo</p>
+                      <p className="text-xs text-zinc-400">github.com/ViniciusAngelo</p>
+                    </div>
+                  </a>
+
+                  <a
+                    href="https://www.instagram.com/vncs_ang.exe"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center space-x-4 p-3.5 rounded-xl hover:bg-white/10 transition-all group"
+                  >
+                    <Instagram className="w-5 h-5 text-white group-hover:scale-110 transition-transform" />
+                    <div>
+                      <p className="font-medium text-sm text-white">Instagram</p>
+                      <p className="text-xs text-zinc-400">@vncs_ang.exe</p>
                     </div>
                   </a>
                 </div>
@@ -712,7 +688,7 @@ function App() {
               <span className="font-semibold text-white text-sm">Vinicius Angelo</span>
             </div>
             <p className="text-xs text-zinc-400">
-              © 2025 Vinicius Angelo. Todos os direitos reservados.
+              © 2026 Vinicius Angelo. Todos os direitos reservados.
             </p>
           </div>
         </footer>
