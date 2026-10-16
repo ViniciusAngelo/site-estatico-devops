@@ -497,7 +497,7 @@ function App() {
             </h2>
 
             <p className="text-base md:text-lg text-zinc-300 mb-10 max-w-xl leading-relaxed">
-              Especialista em sustentação de ambientes corporativos, computação em nuvem e infraestrutura de TI em contextos multinacionais.
+              Sustentação de ambientes corporativos, computação em nuvem e infraestrutura de TI.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto justify-center">
