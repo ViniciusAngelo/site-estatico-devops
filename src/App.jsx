@@ -534,7 +534,7 @@ function App() {
                   Engenheiro da Computação com atuação prática em sustentação e administração de ambientes corporativos em empresa multinacional. Experiência sólida com ecossistema Windows, Active Directory, Microsoft 365, redes e gestão de incidentes operacionais.
                 </p>
                 <p className="text-zinc-300 mb-8 leading-relaxed text-sm md:text-base">
-                  Atuante em projetos de migração e melhoria de infraestrutura, com foco em automação (PowerShell/Python), computação em nuvem (Azure) e especialização em DevOps & Cloud Platform Engineering.
+                  Melhoria de infraestrutura, com foco em automação (PowerShell/Python), computação em nuvem (Azure) e especialização em DevOps & Cloud Platform Engineering.
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {technologies.map((tech, index) => (
