@@ -8,7 +8,7 @@ const __dirname = path.dirname(__filename);
 
 export default defineConfig({
   plugins: [react()],
-  base: '/site-estatico-devops/',
+  base: './', // <--- Mude para './' (ponto e barra)
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
