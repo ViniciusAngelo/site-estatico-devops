@@ -1,10 +1,19 @@
-name: CI - Validação de Código
+name: CI/CD - Integracao e Deploy Continuo
 
 on:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: 'pages'
+  cancel-in-progress: true
 
 jobs:
   lint-and-build:
@@ -22,8 +31,27 @@ jobs:
       - name: 3. Instalar dependências
         run: npm install --legacy-peer-deps
 
-      - name: 4. Executar verificação de lint (Qualidade do Código)
+      - name: 4. Executar verificação de lint
         run: npm run lint:js
 
-      - name: 5. Testar o Build da Aplicação
+      - name: 5. Compilar o projeto (Build)
         run: npm run build
+
+      - name: 6. Fazer upload do artefato compilado
+        if: github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist'
+
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    needs: lint-and-build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Publicar no GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
